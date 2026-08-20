@@ -81,12 +81,6 @@ The project is written primarily in Python and uses Flask for the web server.
 The repository currently pins its Python dependencies in `requirements.txt`, including:
 
 * Flask 3.1.3
-* Jinja2 3.1.6
-* Werkzeug 3.1.8
-* Requests
-* Google API / authentication packages
-* Cryptography
-* Supporting Python packages
 
 See `requirements.txt` for the complete pinned dependency set.
 
