@@ -4,3 +4,4 @@ __pycache__/
 *.txt
 start_with_tracker_apps.bat
 temp.py
+.git
