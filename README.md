@@ -4,7 +4,7 @@ Discalimer: This README file is 100% AI generated based on the repository
 
 A local checklist and tracker for **OoTMM (Ocarina of Time / Majora's Mask)** randomizer runs.
 
-The application reads the current game and scene from an emulator connection, matches that scene against the known OoT/MM scene tables, and displays the relevant spoiler-log checks in a web interface. Checks can be marked complete and are persisted locally so progress survives restarts.
+The application reads the current game and scene from an emulator connection, matches that scene against the known OoT/MM scene tables, and displays the relevant spoiler-log checks in the current location of the player in a web interface. Checks can be marked complete and are persisted locally so progress survives restarts.
 
 ## Features
 
