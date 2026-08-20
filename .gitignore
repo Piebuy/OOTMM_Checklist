@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.json
+*.txt
+start_with_tracker_apps.bat
+temp.py
