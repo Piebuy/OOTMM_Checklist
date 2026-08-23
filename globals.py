@@ -2,6 +2,61 @@ LOCATIONS_FILE = "locations.json"
 BACKUP_LOCATIONS_FILE = "backup/locations.json"
 CURRENT_SCENE_FILE = "current_scene.json"
 
+TRACKER_ITEMS = [
+    "din's fire",
+    "stray fairy",
+    "gold skulltula token",
+    "pocket egg",
+    "eye drops",
+    "moons tear"
+]
+
+DUNGEON_ENTRANCES = [
+    "Deku Tree",
+    "Dodongo's Cavern",
+    "Jabu-Jabu's Belly",
+    "Forest Temple",
+    "Fire Temple",
+    "Water Temple",
+    "Shadow Temple",
+    "Spirit Temple",
+    "Bottom of the Well",
+    "Ice Cavern",
+    "Gerudo's Training Ground",
+    "Woodfall Temple",
+    "Great Bay Temple",
+    "Snowhead Temple",
+    "Stone Tower Temple",
+    "Inverted Stone Tower Temple",
+    "Beneath The Well Canyon",
+    "Beneath The Well Ikana Castle",
+    "Secret Shrine",
+    "Ikana Castle",
+    "Swamp Spider House",
+    "Ocean Spider House",
+    "Clock Tower Roof",
+    "Ganon's Castle",
+    "Beneath The Well", #Placeholder
+]
+
+BOSS_ENTRANCES = LAIRS = [
+    "Gohma's Lair",
+    "King Dodongo's Lair",
+    "Barinade's Lair",
+    "Phantom Ganon's Lair",
+    "Volvagia's Lair",
+    "Morpha's Lair",
+    "Twinrova's Lair & Nabooru's Mini-Boss Room",
+    "Bongo Bongo's Lair",
+    #"Ganondorf's Lair",
+    #"Majora's Lair",
+    "Odolwa's Lair",
+    "Twinmold's Lair",
+    "Goht's Lair",
+    #"Igos du Ikana's Lair",
+    "Gyorg's Lair",
+]
+
 # Memory to string table for location in Ocarina of Time
 SCENE_DIC_OOT = {
     "0x0000": "Inside the Deku Tree",

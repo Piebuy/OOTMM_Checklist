@@ -1,19 +1,24 @@
-from globals import SCENE_DIC_OOT, SCENE_DIC_MM, CURRENT_SCENE_FILE, LOCATIONS_FILE,BACKUP_LOCATIONS_FILE
+from globals import SCENE_DIC_OOT, SCENE_DIC_MM, CURRENT_SCENE_FILE, LOCATIONS_FILE,BACKUP_LOCATIONS_FILE, DUNGEON_ENTRANCES,BOSS_ENTRANCES
+from inventory import print_inventory, update_inventory
 import re
 import json
 import os
+import subprocess
 
-def get_scene_change(values,data,matching_scene):
+def get_scene_change(values,matching_scene):
     """Reads data sent from emulator compares the data to the game dictionaries and returns a string of the current location
     
     Arguments:
         values: Data sent from the emulator. Contains game, scene value, previous scene value
-        data: A dictionary containing the all the locations and checked value. Basicly the savefile.
         matching_scene: Previous matching scene. Used to prevent duplicate updates when someone enters back from sublocations in a location
 
     return:
         matching_scene: Current Location
     """
+
+    data = load_data()
+    if not data:
+        raise ValueError("There is no data to load")
 
     if "game" in values:
         if values["game"] == "mm":
@@ -34,30 +39,205 @@ def get_scene_change(values,data,matching_scene):
     else:
         pscene = None
 
-    scene = process_location_strings(scene)
+    clear_terminal()
+    print(pscene, " -> ",scene)
+    print()
+    print_dungeons(data)
+
+    raw_scene = scene
+    scene = process_location_strings(scene,)
 
     # If scene from emulator == a location in the spoiler data and player is not in the same area (including subareas). set the current scene
-    if scene in data and matching_scene != scene:
-        checked = sum(
-                1
-                for check in data[scene]["locations"]
-                if check["checked"] is True
-            )
-        
-        print(f"Location: {scene}")
-        print(f"n checks: {checked}/{data[scene]["checks"]}")
-        for check in data[scene]["locations"]:
-            print("    " + check["location"])
+    if scene in data and matching_scene != scene or raw_scene in BOSS_ENTRANCES:
+ 
+        #print(f"Location: {scene}")
+        #print(f"n checks: {checked}/{data[scene]["checks"]}")
+        #for check in data[scene]["locations"]:
+            #print("    " + check["location"])
 
-        matching_scene = scene
-        save_matching_scene(matching_scene)
+        if raw_scene in BOSS_ENTRANCES:
+            check_boss_entrance(matching_scene,raw_scene,data)
+        else:
+            check_dungeon_entrance(matching_scene,scene,data)
+            matching_scene = scene
+            save_matching_scene(matching_scene)
+        clear_terminal()
+        print(pscene, " -> ",scene)
+        print()
+        print_dungeons(data)
+        
     return matching_scene
 
+def check_dungeon_entrance(previous, current, data):
 
+    dungeon = ""
+    if current in DUNGEON_ENTRANCES and not any(
+        dungeon_data["dungeon"] == current
+        for dungeon_data in data["dungeons"].values()
+    ):
+        
+        match previous:
+
+            case "Kokiri Forest":
+                dungeon = DUNGEON_ENTRANCES[0]
+
+            case "Death Mountain Trail":
+                dungeon = DUNGEON_ENTRANCES[1]
+
+            case "Zora's Fountain":
+                c = input(
+                    "Enter (1) for Jabu\n"
+                    "Enter (2) for Ice Cavern\n"
+                    "Enter (q) to quit: "
+                )
+
+                if c == "1":
+                    dungeon = DUNGEON_ENTRANCES[2]
+
+                elif c == "2":
+                    dungeon = DUNGEON_ENTRANCES[9]
+
+                else:
+                    print("Location was not saved")
+
+            case "Sacred Forest Meadow":
+                dungeon = DUNGEON_ENTRANCES[3]
+
+            case "Death Mountain Crater":
+                dungeon = DUNGEON_ENTRANCES[4]
+
+            case "Lake Hylia":
+                dungeon = DUNGEON_ENTRANCES[5]
+
+            case "Graveyard":
+                dungeon = DUNGEON_ENTRANCES[6]
+
+            case "Desert Colossus":
+                dungeon = DUNGEON_ENTRANCES[7]
+
+            case "Kakariko":
+                dungeon = DUNGEON_ENTRANCES[8]
+
+            case "Gerudo's Fortress":
+                dungeon = DUNGEON_ENTRANCES[10]
+
+            case "Woodfall":
+                dungeon = DUNGEON_ENTRANCES[11]
+
+            case "Great Bay Coast":
+                c = input(
+                    "Enter (1) for Great Bay Temple\n"
+                    "Enter (2) for Ocean Spider House\n"
+                    "Enter (q) to quit: "
+                )
+
+                if c == "1":
+                    dungeon = DUNGEON_ENTRANCES[12]
+
+                elif c == "2":
+                    dungeon = DUNGEON_ENTRANCES[21]
+
+                else:
+                    print("Location was not saved")
+
+            case "Snowhead":
+                dungeon = DUNGEON_ENTRANCES[13]
+
+            case "Stone Tower":
+                c = input(
+                    "Enter (1) for Stone Tower Temple\n"
+                    "Enter (2) for Inverted Stone Tower Temple\n"
+                    "Enter (q) to quit: "
+                )
+
+                if c == "1":
+                    dungeon = DUNGEON_ENTRANCES[14]
+
+                elif c == "2":
+                    dungeon = DUNGEON_ENTRANCES[15]
+
+                else:
+                    print("Location was not saved")
+
+            case "Ikana Canyon":
+                c = input(
+                    "Enter (1) for Beneath The Well Canyon\n"
+                    "Enter (2) for Secret Shrine\n"
+                    "Enter (q) to quit: "
+                )
+
+                if c == "1":
+                    dungeon = DUNGEON_ENTRANCES[16]
+
+                elif c == "2":
+                    dungeon = DUNGEON_ENTRANCES[18]
+
+                else:
+                    print("Location was not saved")
+
+            case "Ikana Castle":
+                c = input(
+                    "Enter (1) for Beneath The Well Exit\n"
+                    "Enter (2) for Ikana Castle\n"
+                    "Enter (q) to quit: "
+                )
+
+                if c == "1":
+                    dungeon = DUNGEON_ENTRANCES[17]
+
+                elif c == "2":
+                    dungeon = DUNGEON_ENTRANCES[19]
+
+                else:
+                    print("Location was not saved")
+
+            case "Southern Swamp":
+                dungeon = DUNGEON_ENTRANCES[20]
+
+            case "South Clock Town":
+                dungeon = DUNGEON_ENTRANCES[22]
+            case "Outside Ganon's Castle":
+                dungeon = DUNGEON_ENTRANCES[23]
+
+    if dungeon != "":
+        data["dungeons"][dungeon]["dungeon"] = current
+        print("Dungeon: ", dungeon, " -> ", current)
+        save_data(data)
+
+def check_boss_entrance(dungeon,boss_room,data):
+
+    pause = ""
+
+    if boss_room in BOSS_ENTRANCES and not any(
+            dungeon_data["boss"] == boss_room
+            for dungeon_data in data["dungeons"].values()
+        ):
+            
+        dungeon_key = next(
+        key
+        for key, dungeon_data in data["dungeons"].items()
+        if dungeon_data["dungeon"] == dungeon
+    )
+
+        data["dungeons"][dungeon_key]["boss"] = boss_room
+        save_data(data)
+
+
+
+    
+def print_dungeons(data):
+    for dungeon in data["dungeons"]:
+        print(f"{dungeon:>30} -> {data["dungeons"][dungeon]["dungeon"]} -> {data["dungeons"][dungeon]["boss"]}")
+
+def delete_dungeon_entrance(entrance,data):
+    data["dungeons"][entrance] = ""
 
 def text_to_dict(text):
     """Takes a processed spoiler file and formats it to a dictionary"""
-    data = {}
+    data = {"dungeons": {}}
+
+    for entrance in DUNGEON_ENTRANCES[:-1]:
+        data["dungeons"][entrance] = {"dungeon": "","boss": ""}
 
     current_key = None
     current_checks = 0
@@ -168,6 +348,9 @@ def save_data(data, init = False):
                 indent=4,
                 ensure_ascii=False
             )
+    print_inventory(update_inventory(load_data()))
+
+
 
 def save_matching_scene(matching_scene):
     """Save the current matching scene for the flask app to use."""
@@ -188,6 +371,7 @@ def save_matching_scene(matching_scene):
             indent=4,
             ensure_ascii=False
         )
+    
 
 
 def load_matching_scene():
@@ -240,10 +424,14 @@ def process_spoiler_file(text_file):
             line = line.strip().replace(":","")
 
         # Remove if you want boss spoiler
+        if "Boss Container:" in line:
+            line = line.replace("Boss Container","Boss HC")
         if "Boss:" in line:
             line = line[line.index("Boss:"):]
         if "Boss HC:" in line:
             line = line[line.index("Boss HC:"):]
+        if "Boss Chest:" in line:
+            line = line[line.index("Boss Chest:"):]
 
         new_spoiler_log.append(line.strip())
 
@@ -254,7 +442,6 @@ def process_location_strings(scene: str) -> str:
     """Converts a location string to the correct string
         Used when spoiler_log location and scene tables don't match
     """
-
     if "market" in scene.lower():
         scene = "Market"
     if "inside ganon's castle" in scene.lower():
@@ -278,7 +465,22 @@ def process_location_strings(scene: str) -> str:
         scene = "Twin Islands"
     if "path to snowhead" in scene.lower():
         scene = "Road to Snowhead"
+    if "inside jabu-jabu's belly" in scene.lower():
+        scene = "Jabu-Jabu's Belly"
+    if "oceanside spider house" in scene.lower():
+        scene = "Ocean Spider House"
+    if "ancient castle of ikana" in scene.lower():
+        scene = "Ikana Castle"
+    if "beneath the well" in scene.lower():
+        scene = "Beneath The Well"
+    if "clock tower rooftop" in scene.lower():
+        scene = "Clock Tower Roof"
+
+
 
     return scene
 
 
+def clear_terminal():
+    command = "cls" if os.name == "nt" else "clear"
+    subprocess.run([command], shell=os.name == "nt")

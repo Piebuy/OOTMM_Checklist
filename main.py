@@ -43,7 +43,7 @@ with conn:
         if not data:
             break
 
-        matching_scene = HANDLERS[state](values,check_list,matching_scene)
+        matching_scene = HANDLERS[state](values,matching_scene)
 
 
 
