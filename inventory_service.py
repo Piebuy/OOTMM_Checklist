@@ -20,8 +20,8 @@ def process_item_string(all_items,new_inventory,tracker_items):
             item = "stone of agony"
         if "gerudo's membership" in item:
             item = "gerudo's membership card"
-        if "weird egg" in item:
-            item = "weird egg"
+        if "pocket egg" in item:
+            item = "pocket egg"
         if "pocket cucco" in item:
             item = "pocket cucco"
         if "cojiro" in item:

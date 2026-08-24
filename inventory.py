@@ -125,7 +125,7 @@ def update_inventory(data):
         "bunny hood (oot)": "bunny hood" in new_inventory,
         "mask of truth (oot)": "mask of truth (oot)" in new_inventory,
 
-        "weird egg (oot)": "weird egg" in new_inventory,
+        "pocket egg (oot)": "pocket egg" in new_inventory,
         "zelda's letter (oot)": "zelda's letter" in new_inventory,
         "pocket cucco (oot)": "pocket cucco" in new_inventory,
         "cojiro (oot)": "cojiro" in new_inventory,

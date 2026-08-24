@@ -1,5 +1,6 @@
 from globals import SCENE_DIC_OOT, SCENE_DIC_MM, CURRENT_SCENE_FILE, LOCATIONS_FILE,BACKUP_LOCATIONS_FILE, DUNGEON_ENTRANCES,BOSS_ENTRANCES
 from inventory import print_inventory, update_inventory
+from filelock import FileLock
 import re
 import json
 import os
@@ -264,6 +265,7 @@ def text_to_dict(text):
                     {
                         "location": location.split(":", 1)[0].strip(),
                         "checked": False,
+                        "junk": False,
                         "item": location.split(":", 1)[1].strip() if ":" in location else ""
                     }
                     
@@ -290,6 +292,7 @@ def text_to_dict(text):
             {
                 "location": location.split(":", 1)[0].strip(),
                 "checked": False,
+                "junk": False,
                 "item": location.split(":", 1)[1].strip() if ":" in location else ""
             }
             
@@ -322,33 +325,37 @@ def create_check_dict():
 def load_data():
     """Load locations.json."""
 
-    if not os.path.exists(LOCATIONS_FILE):
-        return None
+    filelock = f"{LOCATIONS_FILE}.lock"
+    with FileLock(filelock):
 
-    with open(LOCATIONS_FILE, "r", encoding="utf-8") as file:
-        return json.load(file)
+        if not os.path.exists(LOCATIONS_FILE):
+            return None
+
+        with open(LOCATIONS_FILE, "r", encoding="utf-8") as file:
+            return json.load(file)
 
 
 def save_data(data, init = False):
     """Save locations.json."""
 
-    with open(LOCATIONS_FILE, "w", encoding="utf-8") as file:
-        json.dump(
-            data,
-            file,
-            indent=4,
-            ensure_ascii=False
-        )
-
-    if not init: # not used when creating new file, only when you start checking off checks 
-        with open(BACKUP_LOCATIONS_FILE, "w", encoding="utf-8") as file:
+    filelock = f"{LOCATIONS_FILE}.lock"
+    with FileLock(filelock):
+        with open(LOCATIONS_FILE, "w", encoding="utf-8") as file:
             json.dump(
                 data,
                 file,
                 indent=4,
                 ensure_ascii=False
             )
-    print_inventory(update_inventory(load_data()))
+
+        if not init: # not used when creating new file, only when you start checking off checks 
+            with open(BACKUP_LOCATIONS_FILE, "w", encoding="utf-8") as file:
+                json.dump(
+                    data,
+                    file,
+                    indent=4,
+                    ensure_ascii=False
+                )
 
 
 

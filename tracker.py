@@ -488,7 +488,7 @@ def get_image_filename(item):
             return "gerudo-card_32x32.png"
         return "triple-oot-icons/items/gerudo-card-dim_32x32.png"
 
-    if item == "weird egg (oot)":
+    if item == "pocket egg (oot)":
         if value:
             return "egg_32x32.png"
         return "triple-oot-icons/items/egg-dim_32x32.png"

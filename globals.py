@@ -66,7 +66,7 @@ TRACKER_ITEMS = [
     "bunny hood (oot)",
     "mask of truth (oot)",
 
-    "weird egg (oot)",
+    "pocket egg (oot)",
     "zelda's letter (oot)",
     "pocket cucco (oot)",
     "cojiro (oot)",
