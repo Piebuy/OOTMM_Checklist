@@ -1,4 +1,5 @@
 from globals import TRACKER_ITEMS
+from inventory_service import process_item_string
 
 def update_inventory(data):
     all_items = load_inventory(data)
@@ -6,115 +7,34 @@ def update_inventory(data):
 
     for i in range(all_items.count("Empty Bottle (OoT)")):
         new_inventory.append("empty bottle (oot)")
+    for i in range(all_items.count("Empty Bottle (MM)")):
+            new_inventory.append("empty bottle (mm)")
+    for i in range(all_items.count("Progressive Ocarina")):
+        new_inventory.append("progressive ocarina")
+    for i in range(all_items.count("Progressive Wallet")):
+        new_inventory.append("progressive wallet")
     if "Bottle of Milk (OoT)" in all_items:
         new_inventory.append("empty bottle (oot)") 
-
+    if "Bottle of Red Potion (MM)" in all_items:
+        new_inventory.append("empty bottle (mm)")
+    if "Bottle of Chateau Romani" in all_items:
+        new_inventory.append("empty bottle (mm)")
+    if "Bottle of Milk (MM)" in all_items:
+        new_inventory.append("empty bottle (mm)")
     if "Platinum Token (OoT)" in all_items:
         new_inventory.append("platinum token (oot)")
     if "Platinum Token (MM)" in all_items:
         new_inventory.append("platinum token (mm)")
     if "Transcendent Fairy" in all_items:
         new_inventory.append("transcendent fairy")
+    if "Keaton Mask" in all_items:
+        new_inventory.append("keaton mask (mm)")
+    if "Bunny Hood" in all_items:
+        new_inventory.append("bunny hood")
     new_inventory.append("zelda's letter")
 
-    for item in TRACKER_ITEMS:
-        if item == "empty":
-            continue
-        if "progressive wallet" in item:
-            item = "progressive wallet"
-        if "farore's wind" in item:
-            item = "farore's wind"
-        if "master sword" in item:
-            item = "master sword"
-        if "hylian shield" in item:
-            item = "hylian shield"
-        if "biggoron's sword" in item:
-            item = "biggoron's sword"
-        if "epona's song" in item:
-            item = "epona's song"
-        if "ruto's letter" in item:
-            item = "ruto's letter"
-        if "gold skulltula token" in item:
-            item = "gold skulltula token"
-        if "stone of agony" in item:
-            item = "stone of agony"
-        if "gerudo's membership" in item:
-            item = "gerudo's membership card"
-        if "bunny hood" in item:
-            item = "bunny hood"
-        if "weird egg" in item:
-            item = "weird egg"
-        if "pocket cucco" in item:
-            item = "pocket cucco"
-        if "cojiro" in item:
-            item = "cojiro"
-        if "odd mushroom" in item:
-            item = "odd mushroom"
-        if "odd potion" in item:
-            item = "odd potion"
-        if "poacher's saw" in item:
-            item = "poacher's saw"
-        if "broken goron's sword" in item:
-            item = "broken goron's sword"
-        if "prescription" in item:
-            item = "prescription"
-        if "eyeball frog" in item:
-            item = "eyeball frog"
-        if "eye drops" in item:
-            item = "eye drops"
-        if "claim check" in item:
-            item = "claim check"
-        if "kokiri's emerald" in item:
-            item = "kokiri's emerald"
-        if "goron's ruby" in item:
-            item = "goron's ruby"
-        if "zora's sapphire" in item:
-            item = "zora's sapphire"
-        if "forest medallion" in item:
-            item = "forest medallion"
-        if "fire medallion" in item:
-            item = "fire medallion"
-        if "water medallion" in item:
-            item = "water medallion"
-        if "spirit medallion" in item:
-            item = "spirit medallion"
-        if "shadow medallion" in item:
-            item = "shadow medallion"
-        if "light medallion" in item:
-            item = "light medallion"
-        if "boss key (forest temple)" in item:
-            item = "boss key (forest temple)"
-        if "boss key (fire temple)" in item:
-            item = "boss key (fire temple)"
-        if "boss key (water temple)" in item:
-            item = "boss key (water temple)"
-        if "boss key (spirit temple)" in item:
-            item = "boss key (spirit temple)"
-        if "boss key (shadow temple)" in item:
-            item = "boss key (shadow temple)"
-        if "small key (forest temple)" in item:
-            item = "small key (forest temple)"
-        if "small key (fire temple)" in item:
-            item = "small key (fire temple)"
-        if "small key (water temple)" in item:
-            item = "small key (water temple)"
-        if "small key (spirit temple)" in item:
-            item = "small key (spirit temple)"
-        if "small key (shadow temple)" in item:
-            item = "small key (shadow temple)"
-        if "small key (bottom of the well)" in item:
-            item = "small key (bottom of the well)"
-        if "small key (gerudo's training ground)" in item:
-            item = "small key (gerudo's training ground)"
-        if "key ring (hideout)" in item:
-            item = "key ring (hideout)"
-        if "small key (ganon's castle)" in item:
-            item = "small key (ganon's castle)"
-        if "progressive ocarina" in item:
-            item = "progressive ocarina"
-        for inventory_item in all_items:
-            if item.lower() in inventory_item.lower():
-                new_inventory.append(inventory_item.lower())
+    new_inventory = process_item_string(all_items,new_inventory,TRACKER_ITEMS)
+    
 
     inventory = {
         "deku stick upgrade (oot)": 10 + 10 * new_inventory.count("deku stick upgrade (oot)"),
@@ -275,49 +195,53 @@ def update_inventory(data):
         "light arrows (mm)": "light arrows (mm)" in new_inventory,
 
         # 0 = Kokiri Sword, 1 = Razor Sword, 2 = Gilded Sword
-        "progressive swords (mm)": new_inventory.count("progressive sword (mm)"),
+        "progressive sword (mm)": new_inventory.count("progressive sword (mm)"),
 
-        "hero's shield (mm)": "hero's shield (mm)" in new_inventory,
+        "hero's shield (mm)": "hero's shield" in new_inventory,
         "mirror shield (mm)": "mirror shield (mm)" in new_inventory,
 
         # ============================================================
         # CONSUMABLES / UPGRADES
         # ============================================================
 
-        "bombs (mm)": (
-            20 + 10 * new_inventory.count("bomb bag (mm)")
+        "bomb bag (mm)": (
+            10 + 10 * new_inventory.count("bomb bag (mm)")
             if new_inventory.count("bomb bag (mm)") > 0 else 0
         ),
 
-        "bombchus (mm)": (
+        "bombchu bag (mm)": (
             10 + 10 * new_inventory.count("bombchu bag (mm)")
             if new_inventory.count("bombchu bag (mm)") > 0 else 0
         ),
 
-        "deku sticks (mm)": (
+        "deku stick upgrade (mm)": (
             10 + 10 * new_inventory.count("deku stick upgrade (mm)")
         ),
 
-        "deku nuts (mm)": (
+        "deku nut upgrade (mm)": (
             20 + 10 * new_inventory.count("deku nut upgrade (mm)")
         ),
 
-        "magic beans (mm)": "magic beans (mm)" in new_inventory,
+        "magic bean (mm)": "magic bean (mm)" in new_inventory,
 
-        "gold dust (mm)": "gold dust (mm)" in new_inventory,
+        "bottle of gold dust (mm)": "bottle of gold dust" in new_inventory,
 
-        "empty bottles (mm)": new_inventory.count("empty bottle (mm)"),
+        "empty bottle (mm) 2": new_inventory.count("empty bottle (mm)") > 0, 
+        "empty bottle (mm) 3": new_inventory.count("empty bottle (mm)") > 1,
+        "empty bottle (mm) 4": new_inventory.count("empty bottle (mm)") > 2,
+        "empty bottle (mm) 5": new_inventory.count("empty bottle (mm)") > 3,
+        "empty bottle (mm) 6": new_inventory.count("empty bottle (mm)") > 4,
 
-        "power keg (mm)": "power keg (mm)" in new_inventory,
+        "powder keg (mm)": "powder keg (mm)" in new_inventory,
 
-        "pictograph box (mm)": "pictograph box (mm)" in new_inventory,
+        "pictograph box (mm)": "pictograph box" in new_inventory,
 
         "lens of truth (mm)": "lens of truth (mm)" in new_inventory,
 
         # 0 = none, 1 = Hookshot
-        "hookshot (mm)": new_inventory.count("progressive hookshot (mm)"),
+        "hookshot (mm)": new_inventory.count("hookshot (mm)"),
 
-        "fairy sword (mm)": "fairy sword (mm)" in new_inventory,
+        "great fairy's sword (mm)": "great fairy's sword (mm)" in new_inventory,
 
         # ============================================================
         # MAGIC / SHARED UPGRADES
@@ -328,7 +252,7 @@ def update_inventory(data):
         # Same shared wallet progression as OoT
         "progressive wallet (mm)": new_inventory.count("progressive wallet"),
 
-        "progressive magic (mm)": new_inventory.count("progressive magic (mm)"),
+        "magic upgrade (mm)": new_inventory.count("magic upgrade (mm)"),
 
         # ============================================================
         # SONGS
@@ -336,39 +260,37 @@ def update_inventory(data):
 
         "song of time (mm)": "song of time (mm)" in new_inventory,
         "song of healing (mm)": "song of healing (mm)" in new_inventory,
-        "epona's song (mm)": "epona's song (mm)" in new_inventory,
+        "epona's song (mm)": "epona's song" in new_inventory,
         "song of soaring (mm)": "song of soaring (mm)" in new_inventory,
         "song of storms (mm)": "song of storms (mm)" in new_inventory,
+
         "sonata of awakening (mm)": "sonata of awakening (mm)" in new_inventory,
-        "goron's lullaby (mm)": "goron's lullaby (mm)" in new_inventory,
-
-        # 0 = none, 1 = Bossanova, 2 = New Wave Bossanova
-        "bossanowa (mm)": new_inventory.count("progressive bossanowa (mm)"),
-
+        "progressive goron lullaby (mm)": new_inventory.count("progressive goron lullaby (mm)"),
+        "new wave bossa nova (mm)": "new wave bossa nova (mm)" in new_inventory,
         "elegy of emptiness (mm)": "elegy of emptiness (mm)" in new_inventory,
-        "oath of order (mm)": "oath of order (mm)" in new_inventory,
+        "oath to order (mm)": "oath to order (mm)" in new_inventory,
 
         # ============================================================
         # STRAY FAIRIES
         # ============================================================
 
-        "clock town stray fairies (mm)": new_inventory.count(
+        "stray fairy (clock town) (mm)": new_inventory.count(
             "stray fairy (clock town)"
         ), # Not sure if transcendet affect town fairy
 
-        "woodfall temple stray fairies (mm)": new_inventory.count(
+        "stray fairy (woodfall temple) (mm)": new_inventory.count(
             "stray fairy (woodfall temple)"
         ) if "transcendent fairy" not in new_inventory else 15,
 
-        "snowhead temple stray fairies (mm)": new_inventory.count(
+        "stray fairy (snowhead temple) (mm)": new_inventory.count(
             "stray fairy (snowhead temple)"
         ) if "transcendent fairy" not in new_inventory else 15,
 
-        "great bay temple stray fairies (mm)": new_inventory.count(
+        "stray fairy (great bay temple) (mm)": new_inventory.count(
             "stray fairy (great bay temple)"
         ) if "transcendent fairy" not in new_inventory else 15,
 
-        "stone tower temple stray fairies (mm)": new_inventory.count(
+        "stray fairy (stone tower temple) (mm)": new_inventory.count(
             "stray fairy (stone tower temple)"
         ) if "transcendent fairy" not in new_inventory else 15,
 
@@ -388,19 +310,19 @@ def update_inventory(data):
         # DUNGEON SMALL KEYS
         # ============================================================
 
-        "woodfall temple small keys (mm)": new_inventory.count(
+        "small key (woodfall temple) (mm)": new_inventory.count(
             "small key (woodfall temple)"
         ),
 
-        "snowhead temple small keys (mm)": new_inventory.count(
+        "small key (snowhead temple) (mm)": new_inventory.count(
             "small key (snowhead temple)"
         ),
 
-        "great bay temple small keys (mm)": new_inventory.count(
+        "small key (great bay temple) (mm)": new_inventory.count(
             "small key (great bay temple)"
         ),
 
-        "stone tower temple small keys (mm)": new_inventory.count(
+        "small key (stone tower temple) (mm)": new_inventory.count(
             "small key (stone tower temple)"
         ),
 
@@ -408,19 +330,19 @@ def update_inventory(data):
         # DUNGEON BOSS KEYS
         # ============================================================
 
-        "woodfall temple boss key (mm)": (
+        "boss key (woodfall temple) (mm)": (
             "boss key (woodfall temple)" in new_inventory
         ),
 
-        "snowhead temple boss key (mm)": (
+        "boss key (snowhead temple) (mm)": (
             "boss key (snowhead temple)" in new_inventory
         ),
 
-        "great bay temple boss key (mm)": (
+        "boss key (great bay temple) (mm)": (
             "boss key (great bay temple)" in new_inventory
         ),
 
-        "stone tower temple boss key (mm)": (
+        "boss key (stone tower temple) (mm)": (
             "boss key (stone tower temple)" in new_inventory
         ),
 
@@ -428,16 +350,16 @@ def update_inventory(data):
         # DUNGEON REMAINS
         # ============================================================
 
-        "odolwa remains (mm)": "odolwa remains (mm)" in new_inventory,
-        "goht remains (mm)": "goht remains (mm)" in new_inventory,
-        "gyorg remains (mm)": "gyorg remains (mm)" in new_inventory,
-        "twinmold remains (mm)": "twinmold remains (mm)" in new_inventory,
+        "odolwa's remains (mm)": "odolwa's remains" in new_inventory,
+        "goht's remains (mm)": "goht's remains" in new_inventory,
+        "gyorg's remains (mm)": "gyorg's remains" in new_inventory,
+        "twinmold's remains (mm)": "twinmold's remains" in new_inventory,
 
         # ============================================================
         # STORY / TRADING ITEMS
         # ============================================================
 
-        "moon tear (mm)": "moon tear" in new_inventory,
+        "moon's tear (mm)": "moon's tear" in new_inventory,
 
         "pendant of memories (mm)": (
             "pendant of memories" in new_inventory
@@ -447,16 +369,16 @@ def update_inventory(data):
             "letter to kafei" in new_inventory
         ),
 
-        "mama's letter (mm)": (
-            "mama's letter" in new_inventory
+        "letter to mama (mm)": (
+            "letter to mama" in new_inventory
         ),
 
         "land title deed (mm)": (
             "land title deed" in new_inventory
         ),
 
-        "forest title deed (mm)": (
-            "forest title deed" in new_inventory
+        "swamp title deed (mm)": (
+            "swamp title deed" in new_inventory
         ),
 
         "mountain title deed (mm)": (
@@ -477,7 +399,7 @@ def update_inventory(data):
         "deku mask (mm)": "deku mask" in new_inventory,
         "goron mask (mm)": "goron mask" in new_inventory,
         "zora mask (mm)": "zora mask" in new_inventory,
-        "fierce deity mask (mm)": "fierce deity mask" in new_inventory,
+        "fierce deity's mask (mm)": "fierce deity's mask" in new_inventory,
 
         # Fairy / basic masks
         "great fairy's mask (mm)": (
@@ -489,7 +411,7 @@ def update_inventory(data):
         "stone mask (mm)": "stone mask (mm)" in new_inventory,
 
         # Animal / character masks
-        "keaton mask (mm)": "keaton mask" in new_inventory,
+        "keaton mask (mm)": "keaton mask (mm)" in new_inventory,
         "bremen mask (mm)": "bremen mask" in new_inventory,
         "don gero's mask (mm)": "don gero's mask" in new_inventory,
         "mask of scents (mm)": "mask of scents" in new_inventory,
@@ -500,7 +422,7 @@ def update_inventory(data):
 
         "romani's mask (mm)": "romani's mask" in new_inventory,
         "couple's mask (mm)": "couple's mask" in new_inventory,
-        "kamaro's mask (mm)": "kamaro's mask" in new_inventory,
+        "kamaro's mask (mm)": "kamaro's mask (mm)" in new_inventory,
 
         "postman's hat (mm)": "postman's hat" in new_inventory,
         "all-night mask (mm)": "all-night mask" in new_inventory,
@@ -511,7 +433,7 @@ def update_inventory(data):
 
         "kafei's mask (mm)": "kafei's mask" in new_inventory,
 
-        "mask of truth (mm)": "mask of truth" in new_inventory,
+        "mask of truth (mm)": "mask of truth (mm)" in new_inventory,
 
         "giant's mask (mm)": "giant's mask" in new_inventory,
         "empty":"",
