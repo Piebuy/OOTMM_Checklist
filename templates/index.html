@@ -5,356 +5,167 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Game Tracker</title>
 
-
     <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
+        * { box-sizing: border-box; }
 
         body {
-
             margin: 0;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
+            font-family: Arial, Helvetica, sans-serif;
             background: #1e1e1e;
-
             color: #ffffff;
         }
 
-
         .container {
-
             width: 100%;
-
             max-width: 800px;
-
             margin: 0 auto;
-
             padding: 30px 20px;
         }
 
-
-        /* =========================================
-           HEADER
-        ========================================= */
-
-        .header {
-
-            text-align: center;
-
-            margin-bottom: 20px;
-        }
-
-
-        .header h1 {
-
-            margin: 0 0 10px 0;
-
-            font-size: 36px;
-        }
-
-
-        .progress {
-
-            color: #aaaaaa;
-
-            font-size: 15px;
-
-            margin-bottom: 15px;
-        }
-
-
-        /* =========================================
-           TOGGLE BUTTON
-        ========================================= */
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { margin: 0 0 10px 0; font-size: 36px; }
+        .progress { color: #aaaaaa; font-size: 15px; margin-bottom: 15px; }
 
         .toggle-container {
-
             display: flex;
-
             justify-content: center;
-
             gap: 12px;
-
             margin-bottom: 20px;
         }
 
-
         .toggle-button {
-
             padding: 10px 18px;
-
             border: none;
-
             border-radius: 6px;
-
             background: #444444;
-
             color: white;
-
             font-size: 15px;
-
             cursor: pointer;
-
-            transition:
-                background 0.15s ease;
+            transition: background 0.15s ease;
         }
 
-
-        .toggle-button:hover {
-
-            background: #555555;
-        }
-
-
-        /* =========================================
-           LOCATIONS
-        ========================================= */
+        .toggle-button:hover { background: #555555; }
 
         .locations {
-
             display: flex;
-
             flex-direction: column;
-
             gap: 8px;
         }
 
-
         .location {
-
             display: flex;
-
             align-items: center;
-
             gap: 14px;
-
             padding: 14px 16px;
-
             background: #2b2b2b;
-
             border-radius: 8px;
-
-            transition:
-                background 0.15s ease,
-                opacity 0.15s ease;
+            transition: background 0.15s ease, opacity 0.15s ease;
         }
 
-
-        .location:hover {
-
-            background: #353535;
-        }
+        .location:hover { background: #353535; }
 
         .scene-header {
             margin-top: 25px;
             margin-bottom: 8px;
             padding: 8px 4px;
-
             font-size: 20px;
             font-weight: bold;
-
             text-transform: uppercase;
-
             border-bottom: 2px solid #444;
         }
 
-        .scene-header:first-child {
-            margin-top: 0;
-        }
-
-
-        /* =========================================
-           CHECKBOX
-        ========================================= */
+        .scene-header:first-child { margin-top: 0; }
 
         .location input[type="checkbox"] {
-
             width: 22px;
-
             height: 22px;
-
             flex-shrink: 0;
-
             cursor: pointer;
         }
 
+        /* Junk checkbox is intentionally subdued. */
+        .junk-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #777777;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
 
-        /* =========================================
-           LOCATION NAME
-        ========================================= */
+        .location input.junk-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            opacity: 0.65;
+        }
+
+        .junk-container label {
+            cursor: pointer;
+            user-select: none;
+        }
 
         .location-name {
-
             flex: 1;
-
             font-size: 18px;
-
             cursor: pointer;
         }
 
+        .item { color: #aaaaaa; font-size: 14px; }
 
-        /* =========================================
-           ITEM
-        ========================================= */
+        .location.checked { opacity: 0.5; }
 
-        .item {
-
-            color: #aaaaaa;
-
-            font-size: 14px;
-        }
-
-
-        /* =========================================
-           CHECKED
-        ========================================= */
-
-        .location.checked {
-
-            opacity: 0.5;
-        }
-
-
-        .location.checked .location-name {
-
-            text-decoration: line-through;
-        }
-
-
-        /* =========================================
-           STATUS
-        ========================================= */
+        .location.checked .location-name { text-decoration: line-through; }
 
         .status {
-
             text-align: center;
-
             margin-top: 20px;
-
             color: #888888;
-
             font-size: 13px;
         }
 
-
-        /* =========================================
-           LOADING
-        ========================================= */
-
         .loading {
-
             text-align: center;
-
             padding: 30px;
-
             color: #999999;
         }
-
     </style>
-
 </head>
-
 
 <body>
 
-
 <div class="container">
 
-
-    <!-- =========================================
-         HEADER
-    ========================================== -->
-
     <div class="header">
+        <h1 id="current-location">Loading...</h1>
 
-        <h1 id="current-location">
-            Loading...
-        </h1>
-
-        <div
-            id="progress"
-            class="progress"
-        >
-            0 / 0 checked
-        </div>
-
-
-        <!-- Toggle -->
+        <div id="progress" class="progress">0 / 0 checked</div>
 
         <div class="toggle-container">
-
-            <button
-                id="toggle-button"
-                class="toggle-button"
-                onclick="toggleChecked()"
-            >
+            <button id="toggle-button" class="toggle-button" onclick="toggleChecked()">
                 Hide Checked
             </button>
 
-            <button
-                id="view-toggle-button"
-                class="toggle-button"
-                onclick="toggleView()"
-            >
+            <button id="view-toggle-button" class="toggle-button" onclick="toggleView()">
                 Show All
             </button>
 
-            <button
-                class="toggle-button"
-                onclick="resetLocations()"
-            >
+            <button class="toggle-button" onclick="resetLocations()">
                 Reset
             </button>
-
         </div>
-
     </div>
 
-
-    <!-- =========================================
-         LOCATIONS
-    ========================================== -->
-
-    <div
-        id="locations"
-        class="locations"
-    >
-
-        <div class="loading">
-            Loading...
-        </div>
-
+    <div id="locations" class="locations">
+        <div class="loading">Loading...</div>
     </div>
 
-
-    <!-- =========================================
-         STATUS
-    ========================================== -->
-
-    <div
-        id="status"
-        class="status"
-    >
-        Connecting...
-    </div>
-
-
+    <div id="status" class="status">Connecting...</div>
 </div>
-
 
 <script>
 
@@ -363,706 +174,310 @@
     // =========================================================
 
     let viewMode = "current";
-
     let displayedKey = null;
-
     let hideChecked = false;
 
+    // A junk location counts as completed everywhere in the UI.
+    function isCompleted(check) {
+        return check.checked === true || check.junk === true;
+    }
 
     // =========================================================
     // LOAD CURRENT LOCATION
     // =========================================================
 
     async function loadCurrentData() {
-
         try {
+            const response = await fetch("/api/current");
+            if (!response.ok) throw new Error("Server error");
 
-            const response =
-                await fetch("/api/current");
+            const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error("Server error");
-            }
+            if (viewMode !== "current") return;
 
-            const data =
-                await response.json();
-
-
-            // Do not interfere with "Show All" mode
-
-            if (viewMode !== "current") {
-                return;
-            }
-
-
-            // Location changed
-
-            if (
-                displayedKey !==
-                data.current_key
-            ) {
-
-                displayedKey =
-                    data.current_key;
-
+            if (displayedKey !== data.current_key) {
+                displayedKey = data.current_key;
                 renderCurrentLocations(data);
-
-            }
-            else {
-
+            } else {
                 updateCurrentProgress(data);
-
             }
 
-
-            document.getElementById(
-                "status"
-            ).textContent =
-                "Connected";
-
+            document.getElementById("status").textContent = "Connected";
         }
         catch (error) {
-
             console.error(error);
-
-            document.getElementById(
-                "status"
-            ).textContent =
-                "Connection error";
-
+            document.getElementById("status").textContent = "Connection error";
         }
-
     }
 
     async function resetLocations() {
-
         try {
-
-            const response =
-                await fetch("/api/reset", {
-                    method: "POST"
-                });
-
-            const result =
-                await response.json();
+            const response = await fetch("/api/reset", { method: "POST" });
+            const result = await response.json();
 
             if (!response.ok || !result.success) {
-                throw new Error(
-                    result.error || "Reset failed"
-                );
+                throw new Error(result.error || "Reset failed");
             }
-
-            // Reload whatever view we're currently using
 
             if (viewMode === "all") {
-
                 await showAllLocations();
-
             } else {
-
                 displayedKey = null;
-
                 await loadCurrentData();
-
             }
 
-            document.getElementById(
-                "status"
-            ).textContent = "Reset";
-
+            document.getElementById("status").textContent = "Reset";
         }
         catch (error) {
-
             console.error(error);
-
-            document.getElementById(
-                "status"
-            ).textContent = "Reset failed";
-
+            document.getElementById("status").textContent = "Reset failed";
         }
-
     }
 
     async function toggleView() {
-
-        if (viewMode === "current") {
-
-            await showAllLocations();
-
-        }
-        else {
-
-            await showCurrentLocation();
-
-        }
-
+        if (viewMode === "current") await showAllLocations();
+        else await showCurrentLocation();
     }
 
-
     // =========================================================
-    // RENDER CURRENT LOCATION
+    // RENDER
     // =========================================================
 
     function renderCurrentLocations(data) {
-
-        const header =
-            document.getElementById(
-                "current-location"
-            );
-
-        header.textContent =
-            data.current_key ||
-            "No location";
-
-
-        renderLocations(
-            data.locations,
-            data.current_key
-        );
-
-
+        const header = document.getElementById("current-location");
+        header.textContent = data.current_key || "No location";
+        renderLocations(data.locations, data.current_key);
         updateCurrentProgress(data);
-
     }
 
-
-    // =========================================================
-    // RENDER LOCATIONS
-    // =========================================================
-
     function renderLocations(locations, scene) {
-
-        const container =
-            document.getElementById("locations");
-
+        const container = document.getElementById("locations");
         container.innerHTML = "";
 
-
         if (!locations || locations.length === 0) {
-
-            container.innerHTML =
-                '<div class="loading">' +
-                'No locations found.' +
-                '</div>';
-
+            container.innerHTML = '<div class="loading">No locations found.</div>';
             return;
         }
-
-
-        // =====================================================
-        // CURRENT LOCATION
-        // =====================================================
 
         if (scene !== null) {
-
-            locations.forEach(check => {
-
-                createLocationRow(
-                    container,
-                    check,
-                    scene
-                );
-
-            });
-
+            locations.forEach(check => createLocationRow(container, check, scene));
             return;
         }
-
-
-        // =====================================================
-        // ALL LOCATIONS
-        // =====================================================
 
         let currentScene = null;
 
-
         locations.forEach(check => {
-
-            // New scene
             if (check.scene !== currentScene) {
-
                 currentScene = check.scene;
 
-
-                const sceneHeader =
-                    document.createElement("div");
-
-                sceneHeader.className =
-                    "scene-header";
-
-                sceneHeader.textContent =
-                    currentScene;
-
-
-                container.appendChild(
-                    sceneHeader
-                );
+                const sceneHeader = document.createElement("div");
+                sceneHeader.className = "scene-header";
+                sceneHeader.textContent = currentScene;
+                container.appendChild(sceneHeader);
             }
 
+            createLocationRow(container, check, check.scene);
+        });
+    }
 
-            createLocationRow(
-                container,
-                check,
-                check.scene
-            );
+    function createLocationRow(container, check, scene) {
+        const row = document.createElement("div");
+        row.className = "location";
 
+        const completed = isCompleted(check);
+
+        if (completed) row.classList.add("checked");
+
+        if (hideChecked && completed) {
+            row.style.display = "none";
+        }
+
+        // Main checked checkbox
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = check.checked === true;
+
+        checkbox.addEventListener("change", function () {
+            updateCheckState(scene, check.location, "checked", checkbox.checked);
         });
 
-    }
-    function createLocationRow(
-        container,
-        check,
-        scene
-    ) {
-
-        const row =
-            document.createElement("div");
-
-        row.className =
-            "location";
-
-
-        // Checked styling
-
-        if (check.checked) {
-
-            row.classList.add(
-                "checked"
-            );
-
-        }
-
-
-        // Hide checked
-
-        if (
-            hideChecked &&
-            check.checked
-        ) {
-
-            row.style.display =
-                "none";
-
-        }
-
-
-        // Checkbox
-
-        const checkbox =
-            document.createElement("input");
-
-        checkbox.type =
-            "checkbox";
-
-        checkbox.checked =
-            check.checked;
-
-
         // Location name
+        const name = document.createElement("span");
+        name.className = "location-name";
+        name.textContent = check.location;
 
-        const name =
-            document.createElement("span");
-
-        name.className =
-            "location-name";
-
-        name.textContent =
-            check.location;
-
+        name.addEventListener("click", function () {
+            checkbox.checked = !checkbox.checked;
+            checkbox.dispatchEvent(new Event("change"));
+        });
 
         // Item
+        const item = document.createElement("span");
+        item.className = "item";
+        item.textContent = check.item || "";
 
-        const item =
-            document.createElement("span");
+        // Junk checkbox
+        const junkContainer = document.createElement("div");
+        junkContainer.className = "junk-container";
 
-        item.className =
-            "item";
+        const junkCheckbox = document.createElement("input");
+        junkCheckbox.type = "checkbox";
+        junkCheckbox.className = "junk-checkbox";
+        junkCheckbox.checked = check.junk === true;
+        junkCheckbox.id = "junk-" + Math.random().toString(36).slice(2);
 
-        item.textContent =
-            check.item || "";
+        const junkLabel = document.createElement("label");
+        junkLabel.htmlFor = junkCheckbox.id;
+        junkLabel.textContent = "Junk";
 
+        junkCheckbox.addEventListener("change", function () {
+            updateCheckState(scene, check.location, "junk", junkCheckbox.checked);
+        });
 
-        // Checkbox changed
+        junkContainer.appendChild(junkCheckbox);
+        junkContainer.appendChild(junkLabel);
 
-        checkbox.addEventListener(
-            "change",
-            function () {
+        row.appendChild(checkbox);
+        row.appendChild(name);
 
-                updateChecked(
-                    scene,
-                    check.location,
-                    checkbox.checked
-                );
-
-            }
-        );
-
-
-        // Clicking name toggles checkbox
-
-        name.addEventListener(
-            "click",
-            function () {
-
-                checkbox.checked =
-                    !checkbox.checked;
-
-                checkbox.dispatchEvent(
-                    new Event("change")
-                );
-
-            }
-        );
-
-
-        row.appendChild(
-            checkbox
-        );
-
-        row.appendChild(
-            name
-        );
-
-
-        if (check.item && check.checked) {
-
-            row.appendChild(
-                item
-            );
-
+        if (check.item && completed) {
+            row.appendChild(item);
         }
 
-
-        container.appendChild(
-            row
-        );
+        row.appendChild(junkContainer);
+        container.appendChild(row);
     }
-
 
     // =========================================================
     // CURRENT LOCATION COUNTER
     // =========================================================
 
     function updateCurrentProgress(data) {
+        const checked = data.checked_locations || 0;
+        const total = data.total_locations || 0;
+        const allChecked = data.all_checked || 0;
+        const allTotal = data.all_total || 0;
 
-        const checked =
-            data.checked_locations || 0;
+        const currentPercent = total > 0 ? (checked / total) * 100 : 0;
+        const totalPercent = allTotal > 0 ? (allChecked / allTotal) * 100 : 0;
 
-        const total =
-            data.total_locations || 0;
-
-        const allChecked =
-            data.all_checked || 0;
-
-        const allTotal =
-            data.all_total || 0;
-
-
-        const currentPercent =
-            total > 0
-                ? (checked / total) * 100
-                : 0;
-
-
-        const totalPercent =
-            allTotal > 0
-                ? (allChecked / allTotal) * 100
-                : 0;
-
-
-        document.getElementById(
-            "progress"
-        ).textContent =
-            `${checked} / ${total} checked — ` +
-            `${currentPercent.toFixed(1)}% ` +
-            `(${totalPercent.toFixed(1)}%)`;
+        document.getElementById("progress").textContent =
+            `${checked} / ${total} checked — ${currentPercent.toFixed(1)}% (${totalPercent.toFixed(1)}%)`;
     }
-
 
     // =========================================================
     // SHOW / HIDE CHECKED
     // =========================================================
 
     async function toggleChecked() {
+        hideChecked = !hideChecked;
 
-        hideChecked =
-            !hideChecked;
-
-
-        const button =
-            document.getElementById(
-                "toggle-button"
-            );
-
-
-        if (hideChecked) {
-
-            button.textContent =
-                "Show Checked";
-
-        }
-        else {
-
-            button.textContent =
-                "Hide Checked";
-
-        }
-
-
-        // -----------------------------------------
-        // Current location
-        // -----------------------------------------
+        const button = document.getElementById("toggle-button");
+        button.textContent = hideChecked ? "Show Checked" : "Hide Checked";
 
         if (viewMode === "current") {
-
-            const response =
-                await fetch(
-                    "/api/current"
-                );
-
-            const data =
-                await response.json();
-
+            const response = await fetch("/api/current");
+            const data = await response.json();
             renderCurrentLocations(data);
-
-        }
-
-
-        // -----------------------------------------
-        // All locations
-        // -----------------------------------------
-
-        else {
-
+        } else {
             await showAllLocations();
-
         }
-
     }
-
 
     // =========================================================
     // SHOW ALL LOCATIONS
     // =========================================================
 
     async function showAllLocations() {
-
         viewMode = "all";
 
         try {
+            const response = await fetch("/api/all");
+            if (!response.ok) throw new Error("Server error");
 
-            const response =
-                await fetch("/api/all");
+            const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error("Server error");
-            }
+            document.getElementById("current-location").textContent = "All Locations";
+            renderLocations(data.locations, null);
+            updateAllProgress(data.locations);
 
-            const data =
-                await response.json();
-
-
-            document.getElementById(
-                "current-location"
-            ).textContent =
-                "All Locations";
-
-
-            renderLocations(
-                data.locations,
-                null
-            );
-
-
-            updateAllProgress(
-                data.locations
-            );
-
-
-            // Change button to "Current Location"
-
-            document.getElementById(
-                "view-toggle-button"
-            ).textContent =
-                "Current Location";
-
-
-            document.getElementById(
-                "status"
-            ).textContent =
-                "Showing all locations";
-
+            document.getElementById("view-toggle-button").textContent = "Current Location";
+            document.getElementById("status").textContent = "Showing all locations";
         }
         catch (error) {
-
             console.error(error);
-
-            document.getElementById(
-                "status"
-            ).textContent =
-                "Failed to load locations";
-
+            document.getElementById("status").textContent = "Failed to load locations";
         }
-
     }
-
 
     // =========================================================
     // ALL LOCATIONS COUNTER
     // =========================================================
 
     function updateAllProgress(locations) {
+        const total = locations.length;
+        const checked = locations.filter(location => isCompleted(location)).length;
+        const percentage = total > 0 ? (checked / total) * 100 : 0;
 
-        const total =
-            locations.length;
-
-
-        const checked =
-            locations.filter(
-                location =>
-                    location.checked === true
-            ).length;
-
-
-        const percentage =
-            total > 0
-                ? (checked / total) * 100
-                : 0;
-
-
-        document.getElementById(
-            "progress"
-        ).textContent =
-            `${checked} / ${total} checked — ` +
-            `${percentage.toFixed(1)}%`;
-
+        document.getElementById("progress").textContent =
+            `${checked} / ${total} checked — ${percentage.toFixed(1)}%`;
     }
-
 
     // =========================================================
     // RETURN TO CURRENT LOCATION
     // =========================================================
 
     async function showCurrentLocation() {
-
         viewMode = "current";
-
         displayedKey = null;
 
-
-        // Change button to "Show All"
-
-        document.getElementById(
-            "view-toggle-button"
-        ).textContent =
-            "Show All";
-
-
+        document.getElementById("view-toggle-button").textContent = "Show All";
         await loadCurrentData();
-
     }
 
-
     // =========================================================
-    // UPDATE CHECKBOX
+    // UPDATE CHECKBOX / JUNK CHECKBOX
     // =========================================================
 
-    async function updateChecked(
-        scene,
-        location,
-        checked
-    ) {
-
+    async function updateCheckState(scene, location, type, value) {
         try {
+            const response = await fetch("/api/check", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    scene: scene,
+                    location: location,
+                    type: type,
+                    value: value
+                })
+            });
 
-            const response =
-                await fetch(
-                    "/api/check",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body: JSON.stringify({
-
-                            scene:
-                                scene,
-
-                            location:
-                                location,
-
-                            checked:
-                                checked
-
-                        })
-
-                    }
-                );
-
-
-            const result =
-                await response.json();
-
+            const result = await response.json();
 
             if (!response.ok) {
-
-                throw new Error(
-                    result.error ||
-                    "Failed to save"
-                );
-
+                throw new Error(result.error || "Failed to save");
             }
-
-
-            // -----------------------------------------
-            // Refresh the appropriate view
-            // -----------------------------------------
 
             if (viewMode === "all") {
-
                 await showAllLocations();
-
             } else {
-
                 displayedKey = null;
-
                 await loadCurrentData();
-
             }
 
-
-            document.getElementById(
-                "status"
-            ).textContent =
-                "Saved";
-
+            document.getElementById("status").textContent = "Saved";
         }
         catch (error) {
-
             console.error(error);
-
-            document.getElementById(
-                "status"
-            ).textContent =
-                "Failed to save";
-
+            document.getElementById("status").textContent = "Failed to save";
         }
-
     }
-
 
     // =========================================================
     // POLL FOR CURRENT LOCATION
     // =========================================================
 
-    setInterval(
-        loadCurrentData,
-        1000
-    );
-
+    setInterval(loadCurrentData, 1000);
 
     // =========================================================
     // INITIAL LOAD
@@ -1072,7 +487,5 @@
 
 </script>
 
-
 </body>
-
 </html>
