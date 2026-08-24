@@ -9,16 +9,6 @@ app = Flask(__name__)
 # CURRENT LOCATION
 # ============================================================
 
-# Your existing code should update this variable.
-#
-# For example:
-#
-# matching_scene = "Whiterun"
-# current_key = matching_scene
-#
-# If your existing code already has current_key, you can
-# remove this variable and use your existing one instead.
-
 current_key = ""
 
 # ============================================================
@@ -48,6 +38,12 @@ def api_current():
         []
     )
 
+    # A location is completed if it is checked OR marked as junk.
+    def is_completed(location):
+        return (
+            location.get("checked") is True
+            or location.get("junk") is True
+        )
 
     # =========================================
     # Current scene count
@@ -56,12 +52,10 @@ def api_current():
     current_checked = sum(
         1
         for location in current_locations
-        if location.get("checked") is True
+        if is_completed(location)
     )
 
-
     current_total = len(current_locations)
-
 
     # =========================================
     # ALL scenes count
@@ -69,7 +63,6 @@ def api_current():
 
     all_checked = 0
     all_total = 0
-
 
     for scene_data in data.values(): # type: ignore
 
@@ -83,35 +76,21 @@ def api_current():
         all_checked += sum(
             1
             for location in locations
-            if location.get("checked") is True
+            if is_completed(location)
         )
 
-
     return jsonify({
-
-        "current_key":
-            current_key,
-
-        "locations":
-            current_locations,
-
-        "checked_locations":
-            current_checked,
-
-        "total_locations":
-            current_total,
-
-        "all_checked":
-            all_checked,
-
-        "all_total":
-            all_total
-
+        "current_key": current_key,
+        "locations": current_locations,
+        "checked_locations": current_checked,
+        "total_locations": current_total,
+        "all_checked": all_checked,
+        "all_total": all_total
     })
 
 
 # ============================================================
-# UPDATE CHECKBOX
+# UPDATE CHECKBOX / JUNK CHECKBOX
 # ============================================================
 
 @app.route("/api/check", methods=["POST"])
@@ -127,7 +106,8 @@ def api_check():
 
     scene = request_data.get("scene")
     location = request_data.get("location")
-    checked = request_data.get("checked")
+    check_type = request_data.get("type", "checked")
+    value = request_data.get("value")
 
     if scene is None:
         return jsonify({
@@ -141,10 +121,16 @@ def api_check():
             "error": "Missing location"
         }), 400
 
-    if not isinstance(checked, bool):
+    if check_type not in ("checked", "junk"):
         return jsonify({
             "success": False,
-            "error": "checked must be true or false"
+            "error": "type must be 'checked' or 'junk'"
+        }), 400
+
+    if not isinstance(value, bool):
+        return jsonify({
+            "success": False,
+            "error": "value must be true or false"
         }), 400
 
     data = load_data()
@@ -163,7 +149,8 @@ def api_check():
 
         if check.get("location") == location:
 
-            check["checked"] = checked
+            # Preserve the two states independently.
+            check[check_type] = value
             found = True
             break
 
@@ -173,16 +160,19 @@ def api_check():
             "error": f"Location '{location}' not found in scene '{scene}'"
         }), 404
 
-    # Recalculate this scene's checked count
+    # Recalculate this scene's completed count.
     scene_data["checked_locations"] = sum(
         1
         for check in scene_data.get("locations", [])
-        if check.get("checked") is True
+        if (
+            check.get("checked") is True
+            or check.get("junk") is True
+        )
     )
 
     save_data(data)
 
-    # Calculate global count as well
+    # Calculate global completed count as well.
     all_locations = []
 
     for scene_name, scene_data in data.items(): # type: ignore
@@ -194,7 +184,10 @@ def api_check():
     all_checked = sum(
         1
         for check in all_locations
-        if check.get("checked") is True
+        if (
+            check.get("checked") is True
+            or check.get("junk") is True
+        )
     )
 
     return jsonify({
@@ -203,6 +196,7 @@ def api_check():
         "all_checked": all_checked,
         "all_total": len(all_locations)
     })
+
 
 @app.route("/api/all")
 def api_all():
@@ -219,12 +213,14 @@ def api_all():
                 "scene": scene,
                 "location": location.get("location", ""),
                 "checked": location.get("checked", False),
+                "junk": location.get("junk", False),
                 "item": location.get("item", "")
             })
 
     return jsonify({
         "locations": all_locations
     })
+
 
 @app.route("/api/reset", methods=["POST"])
 def api_reset():
@@ -242,6 +238,8 @@ def api_reset():
             "success": False,
             "error": str(e)
         }), 500
+
+
 # ============================================================
 # START SERVER
 # ============================================================
