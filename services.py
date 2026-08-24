@@ -426,7 +426,7 @@ def process_spoiler_file(text_file):
         # Remove if you want boss spoiler
         if "Boss Container:" in line:
             line = line.replace("Boss Container","Boss HC")
-        if "Boss:" in line:
+        if "Boss:" in line and not "Near Boss" in line:
             line = line[line.index("Boss:"):]
         if "Boss HC:" in line:
             line = line[line.index("Boss HC:"):]
