@@ -920,27 +920,27 @@ def get_image_filename(item):
     if item == "stray fairy (clock town) (mm)":
         if value > 0:
             return "mm/clock_town_stray_fairy.png"
-        return "mm/clock_town_stray_fairy_dim.png"
+        return "clock_town_stray_fairy_dim_32x32.png"
 
     if item == "stray fairy (woodfall temple) (mm)":
         if value > 0:
             return f"mm/fairy_skull_counter/fairy_counters/woodfall_stray_fairy_{value}.png"
-        return "mm/woodfall_stray_fairy_dim.png"
+        return "woodfall_stray_fairy_dim_32x32.png"
 
     if item == "stray fairy (snowhead temple) (mm)":
         if value > 0:
             return f"mm/fairy_skull_counter/fairy_counters/snowhead_stray_fairy_{value}.png"
-        return "mm/snowhead_stray_fairy_dim.png"
+        return "snowhead_stray_fairy_dim_32x32.png"
 
     if item == "stray fairy (great bay temple) (mm)":
         if value > 0:
             return f"mm/fairy_skull_counter/fairy_counters/greatbay_stray_fairy_{value}.png"
-        return "mm/greatbay_stray_fairy_dim.png"
+        return "greatbay_stray_fairy_dim_32x32.png"
 
     if item == "stray fairy (stone tower temple) (mm)":
         if value > 0:
             return f"mm/fairy_skull_counter/fairy_counters/stonetower_stray_fairy_{value}.png"
-        return "mm/stonetower_stray_fairy_dim.png"
+        return "stonetower_stray_fairy_dim_32x32.png"
 
     # ============================================================
     # MM - SKULLTULA TOKENS

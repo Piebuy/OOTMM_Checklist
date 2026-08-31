@@ -348,6 +348,9 @@ def set_starting_items(data):
         if "starting items" in scene.lower():
             for item in data[scene].get("locations", []):
                 item["checked"] = True
+        if "pocket" in scene.lower():
+            for item in data[scene].get("locations", []):
+                item["checked"] = True
     return data
 
 def set_junk_locations(data):
