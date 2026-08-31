@@ -44,6 +44,7 @@ def get_scene_change(values,matching_scene):
     print(pscene, " -> ",scene)
     print()
     print_dungeons(data)
+    print_indexwarp()
 
     raw_scene = scene
     scene = process_location_strings(scene,)
@@ -66,15 +67,53 @@ def get_scene_change(values,matching_scene):
         print(pscene, " -> ",scene)
         print()
         print_dungeons(data)
+        print_indexwarp()
         
     return matching_scene
+def print_indexwarp():
+    print()
+    print(f"""{"--Index Warp--":>40} 
+
+{"Great Bay":>30} -> Great Bay 
+{"Zora Hall":>30} -> Zora Cape 
+{"Romani Ranch":>30} -> Snowhead 
+{"Deku Palace":>30} -> Mountain Village 
+{"Woodfall":>30} -> Clock Town 
+{"Clock Town":>30} -> Milk Road 
+{"Snowhead":>30} -> Woodfall                               
+{"Ikana Graveyard":>30} -> Southern Swamp                               
+{"Ikana Canyon":>30} -> Ikana Canyon                               
+{"Goron Village":>30} -> Stone Tower                               
+{"Stone Tower":>30} -> Dungeon Entrance (softlock)          
+
+{"--Tingle Map Location--":>45}
+
+{"North Clock Town":>30}: Clock Town, Woodfall
+{"Road to Souther Swamp":>30}: Woodfall, Snowhead
+{"Twin Islands":>30}: Snowhead, Romani Ranch
+{"Milk Road":>30}: Romani Ranch, Great Bay
+{"Great Bay Coast":>30}: Great Bay, Stone Tower
+{"Ikana Canyon":>30}: Stone Tower , Clock Town
+""")
+    
+
 
 def check_dungeon_entrance(previous, current, data):
-
+    
+    
     dungeon = ""
-    if current in DUNGEON_ENTRANCES and not any(
-        dungeon_data["dungeon"] == current
-        for dungeon_data in data["dungeons"].values()
+    if (
+        current in DUNGEON_ENTRANCES
+        and not any(
+            dungeon_data["dungeon"] == current
+            for dungeon_data in data["dungeons"].values()
+        )
+    ) or (
+        current == DUNGEON_ENTRANCES[-1]
+        and sum(
+            dungeon_data["dungeon"] == DUNGEON_ENTRANCES[-1]
+            for dungeon_data in data["dungeons"].values()
+        ) < 2
     ):
         
         match previous:
@@ -127,19 +166,20 @@ def check_dungeon_entrance(previous, current, data):
 
             case "Great Bay Coast":
                 c = input(
-                    "Enter (1) for Great Bay Temple\n"
-                    "Enter (2) for Ocean Spider House\n"
+                    "Enter (1) for Ocean Spider House\n"
+                    "Enter (2) for Pirates' Fortress Exterior\n"
                     "Enter (q) to quit: "
                 )
 
                 if c == "1":
-                    dungeon = DUNGEON_ENTRANCES[12]
-
+                    dungeon = DUNGEON_ENTRANCES[22]
                 elif c == "2":
-                    dungeon = DUNGEON_ENTRANCES[21]
+                    dungeon = DUNGEON_ENTRANCES[18]
 
                 else:
                     print("Location was not saved")
+            case "Zora Cape":
+                dungeon = DUNGEON_ENTRANCES[12]
 
             case "Snowhead":
                 dungeon = DUNGEON_ENTRANCES[13]
@@ -171,7 +211,7 @@ def check_dungeon_entrance(previous, current, data):
                     dungeon = DUNGEON_ENTRANCES[16]
 
                 elif c == "2":
-                    dungeon = DUNGEON_ENTRANCES[18]
+                    dungeon = DUNGEON_ENTRANCES[19]
 
                 else:
                     print("Location was not saved")
@@ -187,18 +227,18 @@ def check_dungeon_entrance(previous, current, data):
                     dungeon = DUNGEON_ENTRANCES[17]
 
                 elif c == "2":
-                    dungeon = DUNGEON_ENTRANCES[19]
+                    dungeon = DUNGEON_ENTRANCES[20]
 
                 else:
                     print("Location was not saved")
 
             case "Southern Swamp":
-                dungeon = DUNGEON_ENTRANCES[20]
+                dungeon = DUNGEON_ENTRANCES[21]
 
             case "South Clock Town":
-                dungeon = DUNGEON_ENTRANCES[22]
-            case "Outside Ganon's Castle":
                 dungeon = DUNGEON_ENTRANCES[23]
+            case "Outside Ganon's Castle":
+                dungeon = DUNGEON_ENTRANCES[24]
 
     if dungeon != "":
         data["dungeons"][dungeon]["dungeon"] = current
@@ -206,8 +246,6 @@ def check_dungeon_entrance(previous, current, data):
         save_data(data)
 
 def check_boss_entrance(dungeon,boss_room,data):
-
-    pause = ""
 
     if boss_room in BOSS_ENTRANCES and not any(
             dungeon_data["boss"] == boss_room
@@ -227,8 +265,10 @@ def check_boss_entrance(dungeon,boss_room,data):
 
     
 def print_dungeons(data):
+    print(f"{"--Dungeons--":>40}")
+    print()
     for dungeon in data["dungeons"]:
-        print(f"{dungeon:>30} -> {data["dungeons"][dungeon]["dungeon"]} -> {data["dungeons"][dungeon]["boss"]}")
+        print(f"{dungeon:>30} -> {data["dungeons"][dungeon]["dungeon"]} {f"-> {data["dungeons"][dungeon]["boss"]}" if data["dungeons"][dungeon]["boss"] != "" else "" }")
 
 def delete_dungeon_entrance(entrance,data):
     data["dungeons"][entrance] = ""
@@ -264,7 +304,7 @@ def text_to_dict(text):
                     "locations": [
                     {
                         "location": location.split(":", 1)[0].strip(),
-                        "checked": False,
+                        "checked": True if " SR " in location.split(":", 1)[0].strip() and "Silver Rupee (" in location.split(":", 1)[1].strip() else False,
                         "junk": False,
                         "item": location.split(":", 1)[1].strip() if ":" in location else ""
                     }
@@ -302,6 +342,28 @@ def text_to_dict(text):
 
     return data
 
+def set_starting_items(data):
+
+    for scene in data:
+        if "starting items" in scene.lower():
+            for item in data[scene].get("locations", []):
+                item["checked"] = True
+    return data
+
+def set_junk_locations(data):
+    junk_locations = {
+        junk["location"]
+        for scene in data
+        if "junk locations" in scene.lower()
+        for junk in data[scene].get("locations", [])
+    }
+
+    for scene in data.values():
+        for location in scene.get("locations", []):
+            if location["location"] in junk_locations:
+                location["junk"] = True
+    return data
+
 def create_check_dict():
     """Takes a raw spoiler file, processes the data, formats it to a dictionary, saves it to a json and returns the dictionary
         This is creating a new savefile
@@ -313,6 +375,8 @@ def create_check_dict():
 
     # Convert text to dictionary
     data = text_to_dict(text)
+    data = set_starting_items(data)
+    data = set_junk_locations(data)
 
     # Save as JSON
     save_data(data, init = True)
@@ -415,15 +479,41 @@ def process_spoiler_file(text_file):
     """
 
     new_spoiler_log = []
+    junk_locations = []
+    starting_items = []
+    a = False
     b = False
+    c = False
     with open(text_file,"r", encoding="utf-8") as file:
         text = file.readlines()
 
     for line in text:
-        if "location list (" in line.lower():
+        if "starting items" in line.lower():
+            a = True
+            continue
+        if line.strip() != "" and a == True:
+            line = line[:line.find(":")] 
+            starting_items.append(f"{line.strip()}:{line.strip()}")
+            continue
+        if a == True:
+            a = False
+            starting_items.insert(0,f"Starting Items ({len(starting_items)})")
+
+
+        if "junk locations" in line.lower():
             b = True
             continue
-        elif b == False:
+        if line.strip() != "" and b == True:
+            junk_locations.append(line.strip())
+            continue
+        if b == True:
+            b = False
+            junk_locations.insert(0,f"Junk Locations ({len(junk_locations)})")
+
+        if "location list (" in line.lower():
+            c = True
+            continue
+        elif c == False:
             continue
         if line.strip() == "":
             continue
@@ -442,8 +532,12 @@ def process_spoiler_file(text_file):
 
         new_spoiler_log.append(line.strip())
 
+    new_spoiler_log += starting_items
+    new_spoiler_log += junk_locations
+
     with open("new_spoiler_file.txt","w",encoding="utf-8") as file:
         file.write("\n".join(new_spoiler_log))
+
 
 def process_location_strings(scene: str) -> str:
     """Converts a location string to the correct string
@@ -482,6 +576,8 @@ def process_location_strings(scene: str) -> str:
         scene = "Beneath The Well"
     if "clock tower rooftop" in scene.lower():
         scene = "Clock Tower Roof"
+    if "gerudo training ground" in scene.lower():
+        scene = "Gerudo's Training Ground"
 
 
 

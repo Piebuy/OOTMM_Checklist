@@ -390,6 +390,18 @@ def update_inventory(data):
         ),
 
         "room key (mm)": "room key" in new_inventory,
+        # ============================================================
+        # Clock pieces
+        # ============================================================
+
+        "clock (day 1)": "clock (day 1)" in new_inventory,
+        "clock (day 2)": "clock (day 2)" in new_inventory,
+        "clock (day 3)": "clock (day 3)" in new_inventory,
+        "clock (night 1)": "clock (night 1)" in new_inventory,
+        "clock (night 2)": "clock (night 2)" in new_inventory,
+        "clock (night 3)": "clock (night 3)" in new_inventory,
+
+
 
         # ============================================================
         # MASKS — EXACTLY 24 MM MASKS

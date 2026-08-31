@@ -213,6 +213,13 @@ TRACKER_ITEMS = [
     "small key (stone tower temple) (mm)",
     "boss key (stone tower temple) (mm)",
 
+    "clock (day 1)",
+    "clock (night 1)",
+    "clock (day 2)",
+    "clock (night 2)",
+    "clock (day 3)",
+    "clock (night 3)",
+
 
 
 
@@ -237,6 +244,7 @@ DUNGEON_ENTRANCES = [""
     "Inverted Stone Tower Temple",
     "Beneath The Well Canyon",
     "Beneath The Well Ikana Castle",
+    "Pirates' Fortress Exterior",
     "Secret Shrine",
     "Ikana Castle",
     "Swamp Spider House",

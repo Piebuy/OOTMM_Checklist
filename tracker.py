@@ -1081,6 +1081,36 @@ def get_image_filename(item):
             return "mm/Roomkey.png"
         return "mm/Roomkey-dim.png"
 
+    # Clock PIeces
+    if item == "clock (day 1)":
+        if value:
+            return "clock_1_32x32.png"
+        return "clock_1_dim_32x32.png"
+
+    if item == "clock (day 2)":
+        if value:
+            return "clock_3_32x32.png"
+        return "clock_3_dim_32x32.png"
+
+    if item == "clock (day 3)":
+        if value:
+            return "clock_5_32x32.png"
+        return "clock_5_dim_32x32.png"
+
+    if item == "clock (night 1)":
+        if value:
+            return "clock_2_32x32.png"
+        return "clock_2_dim_32x32.png"
+
+    if item == "clock (night 2)":
+        if value:
+            return "clock_4_32x32.png"
+        return "clock_4_dim_32x32.png"
+
+    if item == "clock (night 3)":
+        if value:
+            return "clock_6_32x32.png"
+        return "clock_6_dim_32x32.png"
     # ============================================================
     # MM - MASKS
     # ============================================================
