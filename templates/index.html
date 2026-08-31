@@ -1,166 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Tracker</title>
-
     <style>
         * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #1e1e1e;
-            color: #ffffff;
-        }
-
+        body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #1e1e1e; color: #ffffff; }
         html { scroll-behavior: smooth; }
-
-        .container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
-
+        .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 30px 20px; }
         .header { text-align: center; margin-bottom: 20px; }
         .header h1 { margin: 0 0 10px 0; font-size: 36px; }
         .progress { color: #aaaaaa; font-size: 15px; margin-bottom: 15px; }
-
-        .toggle-container {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .toggle-button {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 6px;
-            background: #444444;
-            color: white;
-            font-size: 15px;
-            cursor: pointer;
-            transition: background 0.15s ease;
-        }
-
+        .toggle-container { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; }
+        .toggle-button { padding: 10px 18px; border: none; border-radius: 6px; background: #444444; color: white; font-size: 15px; cursor: pointer; transition: background 0.15s ease; }
         .toggle-button:hover { background: #555555; }
-
-        .locations {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .location {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 16px;
-            background: #2b2b2b;
-            border-radius: 8px;
-            transition: background 0.15s ease, opacity 0.15s ease;
-        }
-
+        .locations { display: flex; flex-direction: column; gap: 8px; }
+        .location { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #2b2b2b; border-radius: 8px; transition: background 0.15s ease, opacity 0.15s ease; }
         .location:hover { background: #353535; }
-
-        .scene-header {
-            margin-top: 25px;
-            margin-bottom: 8px;
-            padding: 8px 4px;
-            font-size: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-            border-bottom: 2px solid #444;
-        }
-
+        .scene-header { margin-top: 25px; margin-bottom: 8px; padding: 8px 4px; font-size: 20px; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #444; }
         .scene-header:first-child { margin-top: 0; }
-
-        .location input[type="checkbox"] {
-            width: 22px;
-            height: 22px;
-            flex-shrink: 0;
-            cursor: pointer;
-        }
-
-        .junk-container {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: #777777;
-            font-size: 12px;
-            flex-shrink: 0;
-        }
-
-        .location input.junk-checkbox {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            opacity: 0.65;
-        }
-
-        .junk-container label {
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .location-name {
-            flex: 1;
-            font-size: 18px;
-            cursor: pointer;
-        }
-
+        .location input[type="checkbox"] { width: 22px; height: 22px; flex-shrink: 0; cursor: pointer; }
+        .junk-container { display: flex; align-items: center; gap: 5px; color: #777777; font-size: 12px; flex-shrink: 0; }
+        .location input.junk-checkbox { width: 18px; height: 18px; cursor: pointer; opacity: 0.65; }
+        .junk-container label { cursor: pointer; user-select: none; }
+        .location-name { flex: 1; font-size: 18px; cursor: pointer; }
         .item { color: #aaaaaa; font-size: 14px; }
         .location.checked { opacity: 0.5; }
         .location.checked .location-name { text-decoration: line-through; }
 
-        /* =========================================================
-           BACK TO TOP
-        ========================================================= */
-
-        .back-to-top {
+        /* Floating controls - always visible while scrolling */
+        .floating-controls {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 1000;
-            width: 46px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .floating-button {
             height: 46px;
+            padding: 0 14px;
             border: none;
-            border-radius: 50%;
+            border-radius: 23px;
             background: #444444;
             color: #ffffff;
-            font-size: 22px;
-            line-height: 46px;
-            text-align: center;
+            font-size: 13px;
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
             opacity: 0.85;
             transition: background 0.15s ease, opacity 0.15s ease;
+            white-space: nowrap;
         }
 
-        .back-to-top:hover {
-            background: #555555;
-            opacity: 1;
-        }
+        .floating-button:hover { background: #555555; opacity: 1; }
+        .floating-button.back-to-top { width: 46px; padding: 0; font-size: 22px; }
 
-        .status {
-            text-align: center;
-            margin-top: 20px;
-            color: #888888;
-            font-size: 13px;
-        }
+        .status { text-align: center; margin-top: 20px; color: #888888; font-size: 13px; }
+        .loading { text-align: center; padding: 30px; color: #999999; }
 
-        .loading {
-            text-align: center;
-            padding: 30px;
-            color: #999999;
+        @media (max-width: 600px) {
+            .floating-controls { top: 10px; right: 10px; gap: 5px; }
+            .floating-button { height: 40px; padding: 0 9px; font-size: 11px; }
+            .floating-button.back-to-top { width: 40px; font-size: 19px; }
         }
     </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -169,110 +76,72 @@
         <div id="progress" class="progress">0 / 0 checked</div>
 
         <div class="toggle-container">
-            <button id="toggle-button" class="toggle-button" onclick="toggleChecked()">
-                Hide Checked
-            </button>
-            <button id="view-toggle-button" class="toggle-button" onclick="toggleView()">
-                Show All
-            </button>
-            <button class="toggle-button" onclick="resetLocations()">
-                Reset
-            </button>
+            <button id="toggle-button" class="toggle-button" onclick="toggleChecked()">Hide Checked</button>
+            <button id="view-toggle-button" class="toggle-button" onclick="toggleView()">Show All</button>
+            <button class="toggle-button" onclick="resetLocations()">Reset</button>
         </div>
     </div>
 
     <div id="locations" class="locations">
         <div class="loading">Loading...</div>
     </div>
-
     <div id="status" class="status">Connecting...</div>
 </div>
 
-<!-- Always-visible back-to-top button -->
-<button
-    class="back-to-top"
-    type="button"
-    aria-label="Back to top"
-    title="Back to top"
-    onclick="scrollToTop()"
->
-    ↑
-</button>
+<div class="floating-controls">
+    <button id="floating-checked-button" class="floating-button" type="button" onclick="toggleChecked()" aria-label="Hide checked locations">Hide Checked</button>
+    <button id="floating-view-button" class="floating-button" type="button" onclick="toggleView()" aria-label="Show all locations">Show All</button>
+    <button class="floating-button back-to-top" type="button" aria-label="Back to top" title="Back to top" onclick="scrollToTop()">↑</button>
+</div>
 
 <script>
-
-    // =========================================================
-    // STATE
-    // =========================================================
-
     let viewMode = "current";
     let displayedKey = null;
     let hideChecked = false;
 
-    function isCompleted(check) {
-        return check.checked === true || check.junk === true;
-    }
-
-    // =========================================================
-    // BACK TO TOP
-    // =========================================================
+    function isCompleted(check) { return check.checked === true || check.junk === true; }
 
     function scrollToTop() {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
+        window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // =========================================================
-    // LOAD CURRENT LOCATION
-    // =========================================================
+    function updateFloatingButtons() {
+        const checkedText = hideChecked ? "Show Checked" : "Hide Checked";
+        const viewText = viewMode === "current" ? "Show All" : "Current Location";
+        const checkedButton = document.getElementById("floating-checked-button");
+        const viewButton = document.getElementById("floating-view-button");
+        const headerCheckedButton = document.getElementById("toggle-button");
+        const headerViewButton = document.getElementById("view-toggle-button");
+
+        checkedButton.textContent = checkedText;
+        checkedButton.setAttribute("aria-label", checkedText + " locations");
+        viewButton.textContent = viewText;
+        viewButton.setAttribute("aria-label", viewText);
+        headerCheckedButton.textContent = checkedText;
+        headerViewButton.textContent = viewText;
+    }
 
     async function loadCurrentData() {
         try {
             const response = await fetch("/api/current");
             if (!response.ok) throw new Error("Server error");
-
             const data = await response.json();
             if (viewMode !== "current") return;
-
-            if (displayedKey !== data.current_key) {
-                displayedKey = data.current_key;
-                renderCurrentLocations(data);
-            } else {
-                updateCurrentProgress(data);
-            }
-
+            if (displayedKey !== data.current_key) { displayedKey = data.current_key; renderCurrentLocations(data); }
+            else updateCurrentProgress(data);
             document.getElementById("status").textContent = "Connected";
-        }
-        catch (error) {
-            console.error(error);
-            document.getElementById("status").textContent = "Connection error";
-        }
+        } catch (error) { console.error(error); document.getElementById("status").textContent = "Connection error"; }
     }
 
     async function resetLocations() {
         try {
             const response = await fetch("/api/reset", { method: "POST" });
             const result = await response.json();
-
-            if (!response.ok || !result.success) {
-                throw new Error(result.error || "Reset failed");
-            }
-
-            if (viewMode === "all") {
-                await showAllLocations();
-            } else {
-                displayedKey = null;
-                await loadCurrentData();
-            }
-
+            if (!response.ok || !result.success) throw new Error(result.error || "Reset failed");
+            if (viewMode === "all") await showAllLocations();
+            else { displayedKey = null; await loadCurrentData(); }
             document.getElementById("status").textContent = "Reset";
-        }
-        catch (error) {
-            console.error(error);
-            document.getElementById("status").textContent = "Reset failed";
-        }
+        } catch (error) { console.error(error); document.getElementById("status").textContent = "Reset failed"; }
     }
 
     async function toggleView() {
@@ -280,13 +149,8 @@
         else await showCurrentLocation();
     }
 
-    // =========================================================
-    // RENDER
-    // =========================================================
-
     function renderCurrentLocations(data) {
-        const header = document.getElementById("current-location");
-        header.textContent = data.current_key || "No location";
+        document.getElementById("current-location").textContent = data.current_key || "No location";
         renderLocations(data.locations, data.current_key);
         updateCurrentProgress(data);
     }
@@ -294,29 +158,17 @@
     function renderLocations(locations, scene) {
         const container = document.getElementById("locations");
         container.innerHTML = "";
-
-        if (!locations || locations.length === 0) {
-            container.innerHTML = '<div class="loading">No locations found.</div>';
-            return;
-        }
-
-        if (scene !== null) {
-            locations.forEach(check => createLocationRow(container, check, scene));
-            return;
-        }
-
+        if (!locations || locations.length === 0) { container.innerHTML = '<div class="loading">No locations found.</div>'; return; }
+        if (scene !== null) { locations.forEach(check => createLocationRow(container, check, scene)); return; }
         let currentScene = null;
-
         locations.forEach(check => {
             if (check.scene !== currentScene) {
                 currentScene = check.scene;
-
                 const sceneHeader = document.createElement("div");
                 sceneHeader.className = "scene-header";
                 sceneHeader.textContent = currentScene;
                 container.appendChild(sceneHeader);
             }
-
             createLocationRow(container, check, check.scene);
         });
     }
@@ -324,28 +176,19 @@
     function createLocationRow(container, check, scene) {
         const row = document.createElement("div");
         row.className = "location";
-
         const completed = isCompleted(check);
-
         if (completed) row.classList.add("checked");
         if (hideChecked && completed) row.style.display = "none";
 
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.checked = check.checked === true;
-
-        checkbox.addEventListener("change", function () {
-            updateCheckState(scene, check.location, "checked", checkbox.checked);
-        });
+        checkbox.addEventListener("change", function () { updateCheckState(scene, check.location, "checked", checkbox.checked); });
 
         const name = document.createElement("span");
         name.className = "location-name";
         name.textContent = check.location;
-
-        name.addEventListener("click", function () {
-            checkbox.checked = !checkbox.checked;
-            checkbox.dispatchEvent(new Event("change"));
-        });
+        name.addEventListener("click", function () { checkbox.checked = !checkbox.checked; checkbox.dispatchEvent(new Event("change")); });
 
         const item = document.createElement("span");
         item.className = "item";
@@ -353,168 +196,89 @@
 
         const junkContainer = document.createElement("div");
         junkContainer.className = "junk-container";
-
         const junkCheckbox = document.createElement("input");
         junkCheckbox.type = "checkbox";
         junkCheckbox.className = "junk-checkbox";
         junkCheckbox.checked = check.junk === true;
         junkCheckbox.id = "junk-" + Math.random().toString(36).slice(2);
-
         const junkLabel = document.createElement("label");
         junkLabel.htmlFor = junkCheckbox.id;
         junkLabel.textContent = "Junk";
-
-        junkCheckbox.addEventListener("change", function () {
-            updateCheckState(scene, check.location, "junk", junkCheckbox.checked);
-        });
-
+        junkCheckbox.addEventListener("change", function () { updateCheckState(scene, check.location, "junk", junkCheckbox.checked); });
         junkContainer.appendChild(junkCheckbox);
         junkContainer.appendChild(junkLabel);
 
         row.appendChild(checkbox);
         row.appendChild(name);
-
         if (check.item && completed) row.appendChild(item);
-
         row.appendChild(junkContainer);
         container.appendChild(row);
     }
-
-    // =========================================================
-    // CURRENT LOCATION COUNTER
-    // =========================================================
 
     function updateCurrentProgress(data) {
         const checked = data.checked_locations || 0;
         const total = data.total_locations || 0;
         const allChecked = data.all_checked || 0;
         const allTotal = data.all_total || 0;
-
         const currentPercent = total > 0 ? (checked / total) * 100 : 0;
         const totalPercent = allTotal > 0 ? (allChecked / allTotal) * 100 : 0;
-
-        document.getElementById("progress").textContent =
-            `${checked} / ${total} checked — ${currentPercent.toFixed(1)}% (${totalPercent.toFixed(1)}%)`;
+        document.getElementById("progress").textContent = `${checked} / ${total} checked — ${currentPercent.toFixed(1)}% (${totalPercent.toFixed(1)}%)`;
     }
-
-    // =========================================================
-    // SHOW / HIDE CHECKED
-    // =========================================================
 
     async function toggleChecked() {
         hideChecked = !hideChecked;
-
-        const button = document.getElementById("toggle-button");
-        button.textContent = hideChecked ? "Show Checked" : "Hide Checked";
-
-        if (viewMode === "current") {
-            const response = await fetch("/api/current");
-            const data = await response.json();
-            renderCurrentLocations(data);
-        } else {
-            await showAllLocations();
-        }
+        updateFloatingButtons();
+        if (viewMode === "current") { const response = await fetch("/api/current"); const data = await response.json(); renderCurrentLocations(data); }
+        else await showAllLocations();
     }
-
-    // =========================================================
-    // SHOW ALL LOCATIONS
-    // =========================================================
 
     async function showAllLocations() {
         viewMode = "all";
-
+        updateFloatingButtons();
         try {
             const response = await fetch("/api/all");
             if (!response.ok) throw new Error("Server error");
-
             const data = await response.json();
-
             document.getElementById("current-location").textContent = "All Locations";
             renderLocations(data.locations, null);
             updateAllProgress(data.locations);
-
-            document.getElementById("view-toggle-button").textContent = "Current Location";
+            updateFloatingButtons();
             document.getElementById("status").textContent = "Showing all locations";
-        }
-        catch (error) {
-            console.error(error);
-            document.getElementById("status").textContent = "Failed to load locations";
-        }
+        } catch (error) { console.error(error); document.getElementById("status").textContent = "Failed to load locations"; }
     }
-
-    // =========================================================
-    // ALL LOCATIONS COUNTER
-    // =========================================================
 
     function updateAllProgress(locations) {
         const total = locations.length;
         const checked = locations.filter(location => isCompleted(location)).length;
         const percentage = total > 0 ? (checked / total) * 100 : 0;
-
-        document.getElementById("progress").textContent =
-            `${checked} / ${total} checked — ${percentage.toFixed(1)}%`;
+        document.getElementById("progress").textContent = `${checked} / ${total} checked — ${percentage.toFixed(1)}%`;
     }
-
-    // =========================================================
-    // RETURN TO CURRENT LOCATION
-    // =========================================================
 
     async function showCurrentLocation() {
         viewMode = "current";
         displayedKey = null;
-
-        document.getElementById("view-toggle-button").textContent = "Show All";
+        updateFloatingButtons();
         await loadCurrentData();
     }
-
-    // =========================================================
-    // UPDATE CHECKBOX / JUNK CHECKBOX
-    // =========================================================
 
     async function updateCheckState(scene, location, type, value) {
         try {
             const response = await fetch("/api/check", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    scene: scene,
-                    location: location,
-                    type: type,
-                    value: value
-                })
+                body: JSON.stringify({ scene: scene, location: location, type: type, value: value })
             });
-
             const result = await response.json();
             if (!response.ok) throw new Error(result.error || "Failed to save");
-
-            if (viewMode === "all") {
-                await showAllLocations();
-            } else {
-                displayedKey = null;
-                await loadCurrentData();
-            }
-
+            if (viewMode === "all") await showAllLocations();
+            else { displayedKey = null; await loadCurrentData(); }
             document.getElementById("status").textContent = "Saved";
-        }
-        catch (error) {
-            console.error(error);
-            document.getElementById("status").textContent = "Failed to save";
-        }
+        } catch (error) { console.error(error); document.getElementById("status").textContent = "Failed to save"; }
     }
 
-    // =========================================================
-    // POLL FOR CURRENT LOCATION
-    // =========================================================
-
     setInterval(loadCurrentData, 1000);
-
-    // =========================================================
-    // INITIAL LOAD
-    // =========================================================
-
+    updateFloatingButtons();
     loadCurrentData();
-
 </script>
-
 </body>
 </html>
