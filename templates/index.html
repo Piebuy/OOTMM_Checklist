@@ -2,11 +2,8 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Game Tracker</title>
 
     <style>
@@ -18,6 +15,8 @@
             background: #1e1e1e;
             color: #ffffff;
         }
+
+        html { scroll-behavior: smooth; }
 
         .container {
             width: 100%;
@@ -87,7 +86,6 @@
             cursor: pointer;
         }
 
-        /* Junk checkbox is intentionally subdued. */
         .junk-container {
             display: flex;
             align-items: center;
@@ -116,10 +114,37 @@
         }
 
         .item { color: #aaaaaa; font-size: 14px; }
-
         .location.checked { opacity: 0.5; }
-
         .location.checked .location-name { text-decoration: line-through; }
+
+        /* =========================================================
+           BACK TO TOP
+        ========================================================= */
+
+        .back-to-top {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 46px;
+            height: 46px;
+            border: none;
+            border-radius: 50%;
+            background: #444444;
+            color: #ffffff;
+            font-size: 22px;
+            line-height: 46px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+            opacity: 0.85;
+            transition: background 0.15s ease, opacity 0.15s ease;
+        }
+
+        .back-to-top:hover {
+            background: #555555;
+            opacity: 1;
+        }
 
         .status {
             text-align: center;
@@ -139,21 +164,17 @@
 <body>
 
 <div class="container">
-
     <div class="header">
         <h1 id="current-location">Loading...</h1>
-
         <div id="progress" class="progress">0 / 0 checked</div>
 
         <div class="toggle-container">
             <button id="toggle-button" class="toggle-button" onclick="toggleChecked()">
                 Hide Checked
             </button>
-
             <button id="view-toggle-button" class="toggle-button" onclick="toggleView()">
                 Show All
             </button>
-
             <button class="toggle-button" onclick="resetLocations()">
                 Reset
             </button>
@@ -167,6 +188,17 @@
     <div id="status" class="status">Connecting...</div>
 </div>
 
+<!-- Always-visible back-to-top button -->
+<button
+    class="back-to-top"
+    type="button"
+    aria-label="Back to top"
+    title="Back to top"
+    onclick="scrollToTop()"
+>
+    ↑
+</button>
+
 <script>
 
     // =========================================================
@@ -177,9 +209,19 @@
     let displayedKey = null;
     let hideChecked = false;
 
-    // A junk location counts as completed everywhere in the UI.
     function isCompleted(check) {
         return check.checked === true || check.junk === true;
+    }
+
+    // =========================================================
+    // BACK TO TOP
+    // =========================================================
+
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
     }
 
     // =========================================================
@@ -192,7 +234,6 @@
             if (!response.ok) throw new Error("Server error");
 
             const data = await response.json();
-
             if (viewMode !== "current") return;
 
             if (displayedKey !== data.current_key) {
@@ -287,12 +328,8 @@
         const completed = isCompleted(check);
 
         if (completed) row.classList.add("checked");
+        if (hideChecked && completed) row.style.display = "none";
 
-        if (hideChecked && completed) {
-            row.style.display = "none";
-        }
-
-        // Main checked checkbox
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.checked = check.checked === true;
@@ -301,7 +338,6 @@
             updateCheckState(scene, check.location, "checked", checkbox.checked);
         });
 
-        // Location name
         const name = document.createElement("span");
         name.className = "location-name";
         name.textContent = check.location;
@@ -311,12 +347,10 @@
             checkbox.dispatchEvent(new Event("change"));
         });
 
-        // Item
         const item = document.createElement("span");
         item.className = "item";
         item.textContent = check.item || "";
 
-        // Junk checkbox
         const junkContainer = document.createElement("div");
         junkContainer.className = "junk-container";
 
@@ -340,9 +374,7 @@
         row.appendChild(checkbox);
         row.appendChild(name);
 
-        if (check.item && completed) {
-            row.appendChild(item);
-        }
+        if (check.item && completed) row.appendChild(item);
 
         row.appendChild(junkContainer);
         container.appendChild(row);
@@ -453,10 +485,7 @@
             });
 
             const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.error || "Failed to save");
-            }
+            if (!response.ok) throw new Error(result.error || "Failed to save");
 
             if (viewMode === "all") {
                 await showAllLocations();
