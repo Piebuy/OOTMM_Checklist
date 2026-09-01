@@ -310,7 +310,7 @@ def text_to_dict(text):
                         "checked": True if " SR " in location.split(":", 1)[0].strip() and "Silver Rupee (" in location.split(":", 1)[1].strip() else False,
                         "junk": False,
                         "item": location.split(":", 1)[1].strip() if ":" in location else "",
-                        "description": ""
+                        "notes": ""
                     }
                     
                     for location in current_locations
@@ -338,7 +338,7 @@ def text_to_dict(text):
                 "checked": False,
                 "junk": False,
                 "item": location.split(":", 1)[1].strip() if ":" in location else "",
-                "description": ""
+                "notes": ""
             }
             
             for location in current_locations
