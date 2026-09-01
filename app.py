@@ -45,10 +45,6 @@ def api_current():
             or location.get("junk") is True
         )
 
-    # =========================================
-    # Current scene count
-    # =========================================
-
     current_checked = sum(
         1
         for location in current_locations
@@ -56,10 +52,6 @@ def api_current():
     )
 
     current_total = len(current_locations)
-
-    # =========================================
-    # ALL scenes count
-    # =========================================
 
     all_checked = 0
     all_total = 0
@@ -148,8 +140,6 @@ def api_check():
     for check in scene_data.get("locations", []):
 
         if check.get("location") == location:
-
-            # Preserve the two states independently.
             check[check_type] = value
             found = True
             break
@@ -160,7 +150,6 @@ def api_check():
             "error": f"Location '{location}' not found in scene '{scene}'"
         }), 404
 
-    # Recalculate this scene's completed count.
     scene_data["checked_locations"] = sum(
         1
         for check in scene_data.get("locations", [])
@@ -172,13 +161,10 @@ def api_check():
 
     save_data(data)
 
-    # Calculate global completed count as well.
     all_locations = []
 
     for scene_name, scene_data in data.items(): # type: ignore
-
         for check in scene_data.get("locations", []):
-
             all_locations.append(check)
 
     all_checked = sum(
@@ -198,6 +184,73 @@ def api_check():
     })
 
 
+# ============================================================
+# UPDATE LOCATION NOTE
+# ============================================================
+
+@app.route("/api/note", methods=["POST"])
+def api_note():
+
+    request_data = request.get_json()
+
+    if not request_data:
+        return jsonify({
+            "success": False,
+            "error": "No JSON data received"
+        }), 400
+
+    scene = request_data.get("scene")
+    location = request_data.get("location")
+    note = request_data.get("note", "")
+
+    if scene is None:
+        return jsonify({
+            "success": False,
+            "error": "Missing scene"
+        }), 400
+
+    if location is None:
+        return jsonify({
+            "success": False,
+            "error": "Missing location"
+        }), 400
+
+    if not isinstance(note, str):
+        return jsonify({
+            "success": False,
+            "error": "note must be a string"
+        }), 400
+
+    data = load_data()
+
+    if scene not in data:
+        return jsonify({
+            "success": False,
+            "error": f"Scene '{scene}' not found"
+        }), 404
+
+    found = False
+
+    for check in data[scene].get("locations", []): # type: ignore
+        if check.get("location") == location:
+            check["notes"] = note
+            found = True
+            break
+
+    if not found:
+        return jsonify({
+            "success": False,
+            "error": f"Location '{location}' not found in scene '{scene}'"
+        }), 404
+
+    save_data(data)
+
+    return jsonify({
+        "success": True,
+        "note": note
+    })
+
+
 @app.route("/api/all")
 def api_all():
 
@@ -214,7 +267,8 @@ def api_all():
                 "location": location.get("location", ""),
                 "checked": location.get("checked", False),
                 "junk": location.get("junk", False),
-                "item": location.get("item", "")
+                "item": location.get("item", ""),
+                "notes": location.get("notes", "")
             })
 
     return jsonify({
