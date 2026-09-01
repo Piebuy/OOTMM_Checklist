@@ -419,7 +419,7 @@ def get_image_filename(item):
     if item == "bolero of fire (oot)":
         if value:
             return "bolero_32x32.png"
-        return "bolero-dim_32x40.png"
+        return "bolero-dim_32x32.png"
 
     if item == "serenade of water (oot)":
         if value:
@@ -919,7 +919,7 @@ def get_image_filename(item):
 
     if item == "stray fairy (clock town) (mm)":
         if value > 0:
-            return "mm/clock_town_stray_fairy.png"
+            return "clock_town_stray_fairy_32x32.png"
         return "clock_town_stray_fairy_dim_32x32.png"
 
     if item == "stray fairy (woodfall temple) (mm)":

@@ -267,8 +267,11 @@ def check_boss_entrance(dungeon,boss_room,data):
 def print_dungeons(data):
     print(f"{"--Dungeons--":>40}")
     print()
-    for dungeon in data["dungeons"]:
+    dungeon_space_index = [7,10,15,20,22]
+    for i,dungeon in enumerate(data["dungeons"]):
         print(f"{dungeon:>30} -> {data["dungeons"][dungeon]["dungeon"]} {f"-> {data["dungeons"][dungeon]["boss"]}" if data["dungeons"][dungeon]["boss"] != "" else "" }")
+        if i in dungeon_space_index:
+            print()
 
 def delete_dungeon_entrance(entrance,data):
     data["dungeons"][entrance] = ""
@@ -306,7 +309,8 @@ def text_to_dict(text):
                         "location": location.split(":", 1)[0].strip(),
                         "checked": True if " SR " in location.split(":", 1)[0].strip() and "Silver Rupee (" in location.split(":", 1)[1].strip() else False,
                         "junk": False,
-                        "item": location.split(":", 1)[1].strip() if ":" in location else ""
+                        "item": location.split(":", 1)[1].strip() if ":" in location else "",
+                        "description": ""
                     }
                     
                     for location in current_locations
@@ -333,7 +337,8 @@ def text_to_dict(text):
                 "location": location.split(":", 1)[0].strip(),
                 "checked": False,
                 "junk": False,
-                "item": location.split(":", 1)[1].strip() if ":" in location else ""
+                "item": location.split(":", 1)[1].strip() if ":" in location else "",
+                "description": ""
             }
             
             for location in current_locations
