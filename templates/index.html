@@ -17,7 +17,7 @@
         .toggle-button:hover { background: #555; }
         .locations { display: flex; flex-direction: column; gap: 8px; }
         .location-row { display: flex; align-items: stretch; gap: 8px; width: 100%; }
-        .location { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #2b2b2b; border-radius: 8px; transition: background .15s, opacity .15s; }
+        .location { flex: 0 0 calc(100% - 56px); min-width: 0; display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #2b2b2b; border-radius: 8px; transition: background .15s, opacity .15s; }
         .location:hover { background: #353535; }
         .scene-header { margin-top: 25px; margin-bottom: 8px; padding: 8px 4px; font-size: 20px; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #444; }
         .scene-header:first-child { margin-top: 0; }
@@ -63,7 +63,7 @@
         }
         @media (max-width: 500px) {
             .location-row { gap: 5px; }
-            .location { padding: 12px 10px; gap: 9px; }
+            .location { flex-basis: calc(100% - 47px); padding: 12px 10px; gap: 9px; }
             .location-name { font-size: 15px; }
             .junk-container label { display: none; }
             .note-container { flex-basis: 42px; min-width: 42px; padding: 5px; }
@@ -268,8 +268,8 @@
         const eyeButton = document.createElement("button");
         eyeButton.className = "note-icon-button" + (note ? " has-note" : "");
         eyeButton.type = "button";
-        eyeButton.textContent = expanded ? "👁" : "👁";
-        eyeButton.title = expanded ? "Hide note" : (note ? "Show note" : "Show note");
+        eyeButton.textContent = "✎";
+        eyeButton.title = expanded ? "Hide note" : "Show note";
         eyeButton.setAttribute("aria-label", eyeButton.title);
         eyeButton.addEventListener("click", () => {
             if (showNotes) {
