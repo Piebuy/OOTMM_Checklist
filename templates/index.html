@@ -30,14 +30,14 @@
         .location.checked { opacity: 0.5; }
         .location.checked .location-name { text-decoration: line-through; }
 
-        /* Per-location note on the right side */
-        .note-container { flex: 0 1 280px; min-width: 150px; }
-        .note-display { display: flex; align-items: center; gap: 7px; }
-        .note-preview { color: #999999; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
-        .note-preview.no-note { color: #666666; font-style: italic; }
-        .note-icon-button { width: 30px; height: 30px; padding: 0; border: none; border-radius: 5px; background: #3d3d3d; color: #bbbbbb; font-size: 16px; cursor: pointer; flex-shrink: 0; }
+        /* Note button is always visible at the far right. Note text is optional. */
+        .note-container { flex: 0 0 auto; order: 3; display: flex; align-items: center; }
+        .note-display { display: flex; align-items: center; gap: 7px; max-width: 300px; }
+        .note-preview { color: #999999; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 230px; }
+        .note-icon-button { width: 32px; height: 32px; padding: 0; border: none; border-radius: 5px; background: #3d3d3d; color: #bbbbbb; font-size: 16px; cursor: pointer; flex-shrink: 0; }
         .note-icon-button:hover { background: #4d4d4d; color: #ffffff; }
-        .note-editor { display: flex; flex-direction: column; gap: 6px; }
+        .note-icon-button.has-note { color: #dddddd; }
+        .note-editor { display: flex; flex-direction: column; gap: 6px; width: 300px; }
         .note-editor textarea { width: 100%; min-height: 60px; resize: vertical; padding: 7px; border: 1px solid #555555; border-radius: 5px; background: #1f1f1f; color: #ffffff; font-family: inherit; font-size: 13px; }
         .note-editor-buttons { display: flex; gap: 5px; justify-content: flex-end; }
         .note-save-button, .note-cancel-button { border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; }
@@ -55,11 +55,12 @@
             .floating-controls { top: 10px; right: 10px; gap: 5px; }
             .floating-button { height: 40px; padding: 0 9px; font-size: 11px; }
             .floating-button.back-to-top { width: 40px; font-size: 19px; }
-            .note-container { flex-basis: 190px; min-width: 100px; }
+            .note-preview { width: 120px; }
+            .note-editor { width: 220px; }
         }
         @media (max-width: 500px) {
-            .note-container { flex-basis: 130px; min-width: 70px; }
             .note-preview { display: none; }
+            .note-editor { width: 180px; }
         }
     </style>
 </head>
@@ -132,10 +133,7 @@
         } catch (error) { console.error(error); document.getElementById("status").textContent = "Reset failed"; }
     }
 
-    async function toggleView() {
-        if (viewMode === "current") await showAllLocations();
-        else await showCurrentLocation();
-    }
+    async function toggleView() { if (viewMode === "current") await showAllLocations(); else await showCurrentLocation(); }
 
     async function toggleNotes() {
         showNotes = !showNotes;
@@ -188,7 +186,6 @@
         name.addEventListener("click", function () { checkbox.checked = !checkbox.checked; checkbox.dispatchEvent(new Event("change")); });
         content.appendChild(name);
 
-        // Items remain hidden until the location is checked or marked as junk.
         if (check.item && completed) {
             const item = document.createElement("span");
             item.className = "item";
@@ -199,7 +196,9 @@
         row.appendChild(checkbox);
         row.appendChild(content);
 
-        if (showNotes) row.appendChild(createNoteEditor(check, scene));
+        // The note icon is always present. The note text is only shown when
+        // the global Show Notes toggle is enabled or this note is individually opened.
+        row.appendChild(createNoteEditor(check, scene));
 
         const junkContainer = document.createElement("div");
         junkContainer.className = "junk-container";
@@ -221,27 +220,34 @@
     function createNoteEditor(check, scene) {
         const container = document.createElement("div");
         container.className = "note-container";
-        renderNoteDisplay(container, check, scene);
+        renderNoteDisplay(container, check, scene, false);
         return container;
     }
 
-    function renderNoteDisplay(container, check, scene) {
+    function renderNoteDisplay(container, check, scene, individualOpen) {
         container.innerHTML = "";
         const note = typeof check.notes === "string" ? check.notes : "";
         const display = document.createElement("div");
         display.className = "note-display";
-        const preview = document.createElement("span");
-        preview.className = "note-preview" + (note ? "" : " no-note");
-        preview.textContent = note || "No note";
-        preview.title = note;
+
+        // Only show note text when the global toggle is on or this note is open.
+        if (showNotes || individualOpen) {
+            const preview = document.createElement("span");
+            preview.className = "note-preview";
+            preview.textContent = note || "No note";
+            preview.title = note;
+            display.appendChild(preview);
+        }
+
         const button = document.createElement("button");
-        button.className = "note-icon-button";
+        button.className = "note-icon-button" + (note ? " has-note" : "");
         button.type = "button";
         button.textContent = "📝";
-        button.title = note ? "Edit note" : "Add note";
+        button.title = note ? "Show / edit note" : "Add note";
         button.setAttribute("aria-label", button.title);
-        button.addEventListener("click", function () { openNoteEditor(container, check, scene); });
-        display.appendChild(preview);
+        button.addEventListener("click", function () {
+            openNoteEditor(container, check, scene);
+        });
         display.appendChild(button);
         container.appendChild(display);
     }
@@ -260,7 +266,7 @@
         cancel.className = "note-cancel-button";
         cancel.type = "button";
         cancel.textContent = "Cancel";
-        cancel.onclick = () => renderNoteDisplay(container, check, scene);
+        cancel.onclick = () => renderNoteDisplay(container, check, scene, true);
         const save = document.createElement("button");
         save.className = "note-save-button";
         save.type = "button";
@@ -291,10 +297,7 @@
             document.getElementById("status").textContent = "Note saved";
             if (viewMode === "all") await showAllLocations();
             else { displayedKey = null; await loadCurrentData(true); }
-        } catch (error) {
-            console.error(error);
-            document.getElementById("status").textContent = "Failed to save note";
-        }
+        } catch (error) { console.error(error); document.getElementById("status").textContent = "Failed to save note"; }
     }
 
     function updateCurrentProgress(data) {
@@ -335,12 +338,7 @@
         document.getElementById("progress").textContent = `${checked} / ${total} checked — ${percentage.toFixed(1)}%`;
     }
 
-    async function showCurrentLocation() {
-        viewMode = "current";
-        displayedKey = null;
-        updateFloatingButtons();
-        await loadCurrentData();
-    }
+    async function showCurrentLocation() { viewMode = "current"; displayedKey = null; updateFloatingButtons(); await loadCurrentData(); }
 
     async function updateCheckState(scene, location, type, value) {
         try {
