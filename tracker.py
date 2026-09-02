@@ -419,7 +419,7 @@ def get_image_filename(item):
     if item == "bolero of fire (oot)":
         if value:
             return "bolero_32x32.png"
-        return "bolero-dim_32x32.png"
+        return "gsthd-icon-updates/bolero-dim_32x32.png"
 
     if item == "serenade of water (oot)":
         if value:
