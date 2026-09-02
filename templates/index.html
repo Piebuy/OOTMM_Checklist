@@ -15,6 +15,10 @@
         .toggle-container { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
         .toggle-button { padding: 10px 18px; border: none; border-radius: 6px; background: #444; color: #fff; font-size: 15px; cursor: pointer; }
         .toggle-button:hover { background: #555; }
+        .search-container { display: flex; justify-content: center; margin-bottom: 20px; }
+        .search-input { width: 100%; max-width: 600px; padding: 11px 14px; border: 1px solid #555; border-radius: 7px; background: #292929; color: #fff; font-size: 15px; outline: none; }
+        .search-input:focus { border-color: #777; }
+        .search-input::placeholder { color: #888; }
         .locations { display: flex; flex-direction: column; gap: 8px; }
         .location-row { display: flex; align-items: stretch; gap: 8px; width: 100%; }
         .location { flex: 0 0 calc(100% - 56px); min-width: 0; display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #2b2b2b; border-radius: 8px; transition: background .15s, opacity .15s; }
@@ -68,6 +72,7 @@
             .junk-container label { display: none; }
             .note-container { flex-basis: 42px; min-width: 42px; padding: 5px; }
             .note-container.expanded { flex-basis: 180px; min-width: 180px; }
+            .search-input { font-size: 14px; }
         }
     </style>
 </head>
@@ -81,6 +86,9 @@
             <button id="view-toggle-button" class="toggle-button" onclick="toggleView()">Show All</button>
             <button id="notes-toggle-button" class="toggle-button" onclick="toggleNotes()">Show Notes</button>
             <button class="toggle-button" onclick="resetLocations()">Reset</button>
+        </div>
+        <div class="search-container">
+            <input id="search-input" class="search-input" type="search" placeholder="Search scene, check name, item, or notes..." autocomplete="off" aria-label="Search checks">
         </div>
     </div>
     <div id="locations" class="locations"><div class="loading">Loading...</div></div>
@@ -99,11 +107,28 @@
     let displayedKey = null;
     let hideChecked = false;
     let showNotes = false;
+    let searchTerm = "";
     const individuallyOpenNotes = new Set();
 
     function isCompleted(check) { return check.checked === true || check.junk === true; }
     function noteKey(scene, location) { return String(scene) + "::" + String(location); }
     function scrollToTop() { window.scrollTo({ top: 0, behavior: "smooth" }); }
+    function normalizeSearch(value) { return String(value || "").toLocaleLowerCase(); }
+
+    function checkMatchesSearch(check, scene) {
+        if (hideChecked && isCompleted(check)) return false;
+
+        const term = normalizeSearch(searchTerm).trim();
+        if (!term) return true;
+
+        const values = [
+            scene,
+            check.location,
+            isCompleted(check) ? check.item : "",
+            check.notes
+        ];
+        return values.some(value => normalizeSearch(value).includes(term));
+    }
 
     function updateFloatingButtons() {
         const checkedText = hideChecked ? "Show Checked" : "Hide Checked";
@@ -161,9 +186,20 @@
         const container = document.getElementById("locations");
         container.innerHTML = "";
         if (!locations || locations.length === 0) { container.innerHTML = '<div class="loading">No locations found.</div>'; return; }
-        if (scene !== null) { locations.forEach(check => createLocationRow(container, check, scene)); return; }
+
+        const matchingLocations = locations.filter(check => checkMatchesSearch(check, scene === null ? check.scene : scene));
+        if (matchingLocations.length === 0) {
+            container.innerHTML = '<div class="loading">No checks match your search.</div>';
+            return;
+        }
+
+        if (scene !== null) {
+            matchingLocations.forEach(check => createLocationRow(container, check, scene));
+            return;
+        }
+
         let currentScene = null;
-        locations.forEach(check => {
+        matchingLocations.forEach(check => {
             if (check.scene !== currentScene) {
                 currentScene = check.scene;
                 const sceneHeader = document.createElement("div");
@@ -179,7 +215,6 @@
         const row = document.createElement("div");
         row.className = "location-row";
         const completed = isCompleted(check);
-        if (hideChecked && completed) row.style.display = "none";
 
         const locationCard = document.createElement("div");
         locationCard.className = "location";
@@ -224,8 +259,14 @@
         locationCard.appendChild(junkContainer);
 
         row.appendChild(locationCard);
-        row.appendChild(createNoteEditor(check, scene));
+        const noteContainer = createNoteEditor(check, scene);
+        row.appendChild(noteContainer);
         container.appendChild(row);
+
+        if (normalizeSearch(searchTerm).trim() && check.notes && normalizeSearch(check.notes).includes(normalizeSearch(searchTerm).trim()) && !showNotes) {
+            individuallyOpenNotes.add(noteKey(scene, check.location));
+            renderNoteDisplay(noteContainer, check, scene);
+        }
     }
 
     function createNoteEditor(check, scene) {
@@ -265,13 +306,13 @@
             display.appendChild(editButton);
         }
 
-        const eyeButton = document.createElement("button");
-        eyeButton.className = "note-icon-button" + (note ? " has-note" : "");
-        eyeButton.type = "button";
-        eyeButton.textContent = "✎";
-        eyeButton.title = expanded ? "Hide note" : "Show note";
-        eyeButton.setAttribute("aria-label", eyeButton.title);
-        eyeButton.addEventListener("click", () => {
+        const noteButton = document.createElement("button");
+        noteButton.className = "note-icon-button" + (note ? " has-note" : "");
+        noteButton.type = "button";
+        noteButton.textContent = expanded ? "←→" : "→";
+        noteButton.title = expanded ? "Hide note" : "Show note";
+        noteButton.setAttribute("aria-label", noteButton.title);
+        noteButton.addEventListener("click", () => {
             if (showNotes) {
                 showNotes = false;
                 updateFloatingButtons();
@@ -280,7 +321,7 @@
             else individuallyOpenNotes.add(key);
             renderNoteDisplay(container, check, scene);
         });
-        display.appendChild(eyeButton);
+        display.appendChild(noteButton);
         container.appendChild(display);
     }
 
@@ -391,6 +432,12 @@
             document.getElementById("status").textContent = "Saved";
         } catch (error) { console.error(error); document.getElementById("status").textContent = "Failed to save"; }
     }
+
+    document.getElementById("search-input").addEventListener("input", event => {
+        searchTerm = event.target.value;
+        if (viewMode === "current") loadCurrentData(true);
+        else showAllLocations();
+    });
 
     setInterval(loadCurrentData, 1000);
     updateFloatingButtons();
