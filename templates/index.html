@@ -30,20 +30,19 @@
         .location.checked { opacity: 0.5; }
         .location.checked .location-name { text-decoration: line-through; }
 
-        /* Notes */
-        .note-container { margin-top: 6px; }
-        .note-preview { display: flex; align-items: center; gap: 8px; color: #999999; font-size: 13px; }
-        .note-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
-        .note-edit-button, .note-save-button, .note-cancel-button { border: none; border-radius: 4px; padding: 4px 8px; font-size: 12px; cursor: pointer; flex-shrink: 0; }
-        .note-edit-button { background: #3d3d3d; color: #bbbbbb; }
-        .note-edit-button:hover { background: #4d4d4d; }
-        .note-save-button { background: #4a4a4a; color: #ffffff; }
-        .note-save-button:hover { background: #5a5a5a; }
-        .note-cancel-button { background: #333333; color: #999999; }
+        /* Per-location note on the right side */
+        .note-container { flex: 0 1 280px; min-width: 150px; }
+        .note-display { display: flex; align-items: center; gap: 7px; }
+        .note-preview { color: #999999; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+        .note-preview.no-note { color: #666666; font-style: italic; }
+        .note-icon-button { width: 30px; height: 30px; padding: 0; border: none; border-radius: 5px; background: #3d3d3d; color: #bbbbbb; font-size: 16px; cursor: pointer; flex-shrink: 0; }
+        .note-icon-button:hover { background: #4d4d4d; color: #ffffff; }
         .note-editor { display: flex; flex-direction: column; gap: 6px; }
-        .note-editor textarea { width: 100%; min-height: 60px; resize: vertical; padding: 8px; border: 1px solid #555555; border-radius: 5px; background: #1f1f1f; color: #ffffff; font-family: inherit; font-size: 13px; }
-        .note-editor-buttons { display: flex; gap: 6px; justify-content: flex-end; }
-        .no-note { color: #666666; font-style: italic; }
+        .note-editor textarea { width: 100%; min-height: 60px; resize: vertical; padding: 7px; border: 1px solid #555555; border-radius: 5px; background: #1f1f1f; color: #ffffff; font-family: inherit; font-size: 13px; }
+        .note-editor-buttons { display: flex; gap: 5px; justify-content: flex-end; }
+        .note-save-button, .note-cancel-button { border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; }
+        .note-save-button { background: #4a4a4a; color: #ffffff; }
+        .note-cancel-button { background: #333333; color: #999999; }
 
         /* Floating controls */
         .floating-controls { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 8px; align-items: center; }
@@ -52,10 +51,15 @@
         .floating-button.back-to-top { width: 46px; padding: 0; font-size: 22px; }
         .status { text-align: center; margin-top: 20px; color: #888888; font-size: 13px; }
         .loading { text-align: center; padding: 30px; color: #999999; }
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             .floating-controls { top: 10px; right: 10px; gap: 5px; }
             .floating-button { height: 40px; padding: 0 9px; font-size: 11px; }
             .floating-button.back-to-top { width: 40px; font-size: 19px; }
+            .note-container { flex-basis: 190px; min-width: 100px; }
+        }
+        @media (max-width: 500px) {
+            .note-container { flex-basis: 130px; min-width: 70px; }
+            .note-preview { display: none; }
         }
     </style>
 </head>
@@ -76,9 +80,9 @@
 </div>
 
 <div class="floating-controls">
-    <button id="floating-checked-button" class="floating-button" type="button" onclick="toggleChecked()" aria-label="Hide checked locations">Hide Checked</button>
-    <button id="floating-view-button" class="floating-button" type="button" onclick="toggleView()" aria-label="Show all locations">Show All</button>
-    <button id="floating-notes-button" class="floating-button" type="button" onclick="toggleNotes()" aria-label="Show notes">Show Notes</button>
+    <button id="floating-checked-button" class="floating-button" type="button" onclick="toggleChecked()">Hide Checked</button>
+    <button id="floating-view-button" class="floating-button" type="button" onclick="toggleView()">Show All</button>
+    <button id="floating-notes-button" class="floating-button" type="button" onclick="toggleNotes()">Show Notes</button>
     <button class="floating-button back-to-top" type="button" aria-label="Back to top" title="Back to top" onclick="scrollToTop()">↑</button>
 </div>
 
@@ -89,7 +93,6 @@
     let showNotes = false;
 
     function isCompleted(check) { return check.checked === true || check.junk === true; }
-
     function scrollToTop() { window.scrollTo({ top: 0, behavior: "smooth" }); }
 
     function updateFloatingButtons() {
@@ -97,11 +100,8 @@
         const viewText = viewMode === "current" ? "Show All" : "Current Location";
         const notesText = showNotes ? "Hide Notes" : "Show Notes";
         document.getElementById("floating-checked-button").textContent = checkedText;
-        document.getElementById("floating-checked-button").setAttribute("aria-label", checkedText + " locations");
         document.getElementById("floating-view-button").textContent = viewText;
-        document.getElementById("floating-view-button").setAttribute("aria-label", viewText);
         document.getElementById("floating-notes-button").textContent = notesText;
-        document.getElementById("floating-notes-button").setAttribute("aria-label", notesText);
         document.getElementById("toggle-button").textContent = checkedText;
         document.getElementById("view-toggle-button").textContent = viewText;
         document.getElementById("notes-toggle-button").textContent = notesText;
@@ -182,14 +182,13 @@
 
         const content = document.createElement("div");
         content.className = "location-content";
-
         const name = document.createElement("span");
         name.className = "location-name";
         name.textContent = check.location;
         name.addEventListener("click", function () { checkbox.checked = !checkbox.checked; checkbox.dispatchEvent(new Event("change")); });
         content.appendChild(name);
 
-        // Only show the item after the location is checked or marked as junk.
+        // Items remain hidden until the location is checked or marked as junk.
         if (check.item && completed) {
             const item = document.createElement("span");
             item.className = "item";
@@ -197,7 +196,10 @@
             name.appendChild(item);
         }
 
-        if (showNotes) createNoteEditor(content, check, scene);
+        row.appendChild(checkbox);
+        row.appendChild(content);
+
+        if (showNotes) row.appendChild(createNoteEditor(check, scene));
 
         const junkContainer = document.createElement("div");
         junkContainer.className = "junk-container";
@@ -212,33 +214,36 @@
         junkCheckbox.addEventListener("change", function () { updateCheckState(scene, check.location, "junk", junkCheckbox.checked); });
         junkContainer.appendChild(junkCheckbox);
         junkContainer.appendChild(junkLabel);
-
-        row.appendChild(checkbox);
-        row.appendChild(content);
         row.appendChild(junkContainer);
         container.appendChild(row);
     }
 
-    function createNoteEditor(content, check, scene) {
-        const noteContainer = document.createElement("div");
-        noteContainer.className = "note-container";
+    function createNoteEditor(check, scene) {
+        const container = document.createElement("div");
+        container.className = "note-container";
+        renderNoteDisplay(container, check, scene);
+        return container;
+    }
+
+    function renderNoteDisplay(container, check, scene) {
+        container.innerHTML = "";
         const note = typeof check.notes === "string" ? check.notes : "";
-        const preview = document.createElement("div");
-        preview.className = "note-preview";
-        const noteText = document.createElement("span");
-        noteText.className = "note-text";
-        noteText.textContent = note ? note : "No note";
-        if (!note) noteText.classList.add("no-note");
-        noteText.title = note;
-        const editButton = document.createElement("button");
-        editButton.className = "note-edit-button";
-        editButton.type = "button";
-        editButton.textContent = note ? "Edit" : "Add Note";
-        editButton.addEventListener("click", function () { openNoteEditor(noteContainer, check, scene); });
-        preview.appendChild(noteText);
-        preview.appendChild(editButton);
-        noteContainer.appendChild(preview);
-        content.appendChild(noteContainer);
+        const display = document.createElement("div");
+        display.className = "note-display";
+        const preview = document.createElement("span");
+        preview.className = "note-preview" + (note ? "" : " no-note");
+        preview.textContent = note || "No note";
+        preview.title = note;
+        const button = document.createElement("button");
+        button.className = "note-icon-button";
+        button.type = "button";
+        button.textContent = "📝";
+        button.title = note ? "Edit note" : "Add note";
+        button.setAttribute("aria-label", button.title);
+        button.addEventListener("click", function () { openNoteEditor(container, check, scene); });
+        display.appendChild(preview);
+        display.appendChild(button);
+        container.appendChild(display);
     }
 
     function openNoteEditor(container, check, scene) {
@@ -247,29 +252,26 @@
         editor.className = "note-editor";
         const textarea = document.createElement("textarea");
         textarea.value = typeof check.notes === "string" ? check.notes : "";
-        textarea.placeholder = "Add a note for this location...";
+        textarea.placeholder = "Add a note...";
         textarea.maxLength = 2000;
         const buttons = document.createElement("div");
         buttons.className = "note-editor-buttons";
-        const cancelButton = document.createElement("button");
-        cancelButton.className = "note-cancel-button";
-        cancelButton.type = "button";
-        cancelButton.textContent = "Cancel";
-        cancelButton.addEventListener("click", function () {
-            container.innerHTML = "";
-            createNoteEditor(container.parentElement, check, scene);
-        });
-        const saveButton = document.createElement("button");
-        saveButton.className = "note-save-button";
-        saveButton.type = "button";
-        saveButton.textContent = "Save Note";
-        saveButton.addEventListener("click", async function () {
-            saveButton.disabled = true;
+        const cancel = document.createElement("button");
+        cancel.className = "note-cancel-button";
+        cancel.type = "button";
+        cancel.textContent = "Cancel";
+        cancel.onclick = () => renderNoteDisplay(container, check, scene);
+        const save = document.createElement("button");
+        save.className = "note-save-button";
+        save.type = "button";
+        save.textContent = "Save";
+        save.onclick = async () => {
+            save.disabled = true;
             await saveNote(scene, check, textarea.value);
-            saveButton.disabled = false;
-        });
-        buttons.appendChild(cancelButton);
-        buttons.appendChild(saveButton);
+            save.disabled = false;
+        };
+        buttons.appendChild(cancel);
+        buttons.appendChild(save);
         editor.appendChild(textarea);
         editor.appendChild(buttons);
         container.appendChild(editor);
@@ -322,7 +324,6 @@
             document.getElementById("current-location").textContent = "All Locations";
             renderLocations(data.locations, null);
             updateAllProgress(data.locations);
-            updateFloatingButtons();
             document.getElementById("status").textContent = "Showing all locations";
         } catch (error) { console.error(error); document.getElementById("status").textContent = "Failed to load locations"; }
     }
