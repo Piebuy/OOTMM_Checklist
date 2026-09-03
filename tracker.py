@@ -726,6 +726,9 @@ def get_image_filename(item):
         if value:
             return "triple-oot-icons/keys/key_green_4.png"
         return "triple-oot-icons/keys/thieves-hideout-key-dim_32x32.png"
+    if item == "key ring (chest game) (oot)":
+        if value:
+            return "triple-oot-icons/keys/key_green_6.png"
 
     # ============================================================
     # MM - PROGRESSIVE ITEMS
@@ -895,7 +898,7 @@ def get_image_filename(item):
         if value >= 2:
             return "mm/Lullaby.png"
         if value >= 1:
-            return "mm/Lullaby-dim.png"
+            return "mm/Lullaby_intro.png"
         return "mm/Lullaby-dim.png"
 
     if item == "new wave bossa nova (mm)":

@@ -175,6 +175,8 @@ def update_inventory(data):
 
         "key ring (hideout) (oot)": "key ring (hideout)" in new_inventory,
 
+        "key ring (chest game) (oot)": "key ring (chest game)" in new_inventory,
+
         "small key (bottom of the well) (oot)": new_inventory.count(
             "small key (bottom of the well)"
         ),

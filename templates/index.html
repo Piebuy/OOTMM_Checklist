@@ -309,7 +309,7 @@
         const noteButton = document.createElement("button");
         noteButton.className = "note-icon-button" + (note ? " has-note" : "");
         noteButton.type = "button";
-        noteButton.textContent = expanded ? "←→" : "→";
+        noteButton.textContent = expanded ? "←" : "→";
         noteButton.title = expanded ? "Hide note" : "Show note";
         noteButton.setAttribute("aria-label", noteButton.title);
         noteButton.addEventListener("click", () => {

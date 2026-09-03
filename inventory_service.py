@@ -86,6 +86,8 @@ def process_item_string(all_items,new_inventory,tracker_items):
             item = "small key (gerudo's training ground)"
         if "key ring (hideout)" in item:
             item = "key ring (hideout)"
+        if "key ring (chest game)" in item:
+            item = "key ring (chest game)"
         if "small key (ganon's castle)" in item:
             item = "small key (ganon's castle)"
         if "hero's shield" in item:

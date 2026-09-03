@@ -91,7 +91,7 @@ TRACKER_ITEMS = [
     "spirit medallion (oot)",
     "shadow medallion (oot)",
     "light medallion (oot)",
-    "empty",
+    "key ring (chest game) (oot)",
   
   
     "goron's ruby (oot)",
