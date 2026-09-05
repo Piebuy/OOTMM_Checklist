@@ -646,7 +646,7 @@ def get_image_filename(item):
 
     if item == "small key (fire temple) (oot)":
         if value >= 7:
-            return f"triple-oot-icons/keys/key_green_5.png"
+            return f"triple-oot-icons/keys/key_green_7.png"
         if value > 0:
             return f"triple-oot-icons/keys/key_white_{value}.png"
         return "triple-oot-icons/keys/fire-temple-key-dim_32x32.png"
@@ -674,21 +674,21 @@ def get_image_filename(item):
 
     if item == "small key (ganon's castle) (oot)":
         if value >= 2:
-            return f"triple-oot-icons/keys/key_green_5.png"
+            return f"triple-oot-icons/keys/key_green_2.png"
         if value > 0:
             return f"triple-oot-icons/keys/key_white_{value}.png"
         return "triple-oot-icons/keys/ganon-key-dim_32x32.png"
 
     if item == "small key (gerudo's training ground) (oot)":
         if value >= 9:
-            return f"triple-oot-icons/keys/key_green_5.png"
+            return f"triple-oot-icons/keys/key_green_9.png"
         if value > 0:
             return f"triple-oot-icons/keys/key_white_{value}.png"
         return "triple-oot-icons/keys/gtg-key-dim_32x32.png"
 
     if item == "small key (bottom of the well) (oot)":
         if value >= 3:
-            return f"triple-oot-icons/keys/key_green_5.png"
+            return f"triple-oot-icons/keys/key_green_3.png"
         if value > 0:
             return f"triple-oot-icons/keys/key_white_{value}.png"
         return "triple-oot-icons/keys/botw-key-dim_32x32.png"
