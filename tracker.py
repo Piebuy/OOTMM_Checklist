@@ -23,7 +23,7 @@ class ItemWindow(tk.Tk):
         super().__init__()
 
         self.title("Inventory")
-        self.resizable(False, False)
+        self.resizable(False, True)
 
         # VERY IMPORTANT:
         # Keep references to PhotoImages alive.
